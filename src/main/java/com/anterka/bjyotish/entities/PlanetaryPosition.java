@@ -108,6 +108,27 @@ public class PlanetaryPosition implements Serializable {
         return difference <= orbDegrees;
     }
 
+    public String getFullDescription() {
+        return String.format("%s is positioned in %s at %s degrees in the %s house%s",
+                planet, sign, getDegreeFormatted(), getOrdinalHouse(),
+                isRetrograde() ? " (Retrograde)" : "");
+    }
+
+    public String getDegreeFormatted() {
+        return degree != null ? degree + "°" : "0°";
+    }
+
+    private String getOrdinalHouse() {
+        if (house == null) return "unknown";
+        return switch (house) {
+            case 1 -> "1st";
+            case 2 -> "2nd";
+            case 3 -> "3rd";
+            case 21, 22, 23 -> house + "rd";
+            default -> house + "th";
+        };
+    }
+
     public String getPlanetSymbol() {
         // Return astrological symbols for common planets
         switch (planet.toLowerCase()) {

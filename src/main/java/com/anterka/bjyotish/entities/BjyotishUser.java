@@ -168,4 +168,8 @@ public class BjyotishUser implements UserDetails, Serializable {
     protected void onUpdate() {
         updatedAt = Instant.now();
     }
+
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 }
