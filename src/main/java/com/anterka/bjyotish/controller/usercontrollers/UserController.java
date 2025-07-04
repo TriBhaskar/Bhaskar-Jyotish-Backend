@@ -1,6 +1,8 @@
 package com.anterka.bjyotish.controller.usercontrollers;
 
 import com.anterka.bjyotish.controller.constants.ApiPaths;
+import com.anterka.bjyotish.dto.users.UserRegistrationRequest;
+import com.anterka.bjyotish.dto.users.UserRegistrationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +17,15 @@ public class UserController {
     private static final Logger log = Logger.getLogger(UserController.class.getName());
 
     @PostMapping(ApiPaths.REGISTER)
-    public ResponseEntity<String> register() {
-        return ResponseEntity.ok("Enterprise registration endpoint is not implemented yet.");
+    public ResponseEntity<UserRegistrationResponse> register(@RequestBody UserRegistrationRequest userRegistrationRequest) {
+        UserRegistrationResponse success = UserRegistrationResponse.success(
+                1L, // Placeholder for userId
+                userRegistrationRequest.getEmail(),
+                userRegistrationRequest.getFirstName(),
+                userRegistrationRequest.getLastName(),
+                3600L // Placeholder for OTP validity in seconds
+        );
+        return ResponseEntity.ok(success);
     }
 
     @PostMapping(ApiPaths.LOGIN)
