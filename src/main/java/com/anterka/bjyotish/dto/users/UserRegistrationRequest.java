@@ -37,12 +37,12 @@ public class UserRegistrationRequest {
     @Pattern(regexp = "^[a-zA-Z\\s]+$")
     private String lastName;
 
-    // Optional fields
-    @Past(message = "Date of birth must be in the past")
-    private LocalDate dateOfBirth;
-
-    @Pattern(regexp = "^(MALE|FEMALE)$")
-    private String gender;
+//    // Optional fields
+//    @Past(message = "Date of birth must be in the past")
+//    private LocalDate dateOfBirth;
+//
+//    @Pattern(regexp = "^(MALE|FEMALE)$")
+//    private String gender;
 
     // Accept terms and conditions
     @AssertTrue(message = "You must accept the terms and conditions")

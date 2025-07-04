@@ -3,7 +3,10 @@ package com.anterka.bjyotish.controller.usercontrollers;
 import com.anterka.bjyotish.controller.constants.ApiPaths;
 import com.anterka.bjyotish.dto.users.UserRegistrationRequest;
 import com.anterka.bjyotish.dto.users.UserRegistrationResponse;
+import com.anterka.bjyotish.service.BjyotishAuthenticationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,17 +18,12 @@ import java.util.logging.Logger;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UserController {
     private static final Logger log = Logger.getLogger(UserController.class.getName());
+    private final BjyotishAuthenticationService bjyotishAuthenticationService;
 
     @PostMapping(ApiPaths.REGISTER)
-    public ResponseEntity<UserRegistrationResponse> register(@RequestBody UserRegistrationRequest userRegistrationRequest) {
-        UserRegistrationResponse success = UserRegistrationResponse.success(
-                1L, // Placeholder for userId
-                userRegistrationRequest.getEmail(),
-                userRegistrationRequest.getFirstName(),
-                userRegistrationRequest.getLastName(),
-                3600L // Placeholder for OTP validity in seconds
-        );
-        return ResponseEntity.ok(success);
+    public ResponseEntity<UserRegistrationResponse> register(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest) {
+        log.info("Received registration request for email: " + userRegistrationRequest.getEmail());
+        return ResponseEntity.ok(bjyotishAuthenticationService.registerUser(userRegistrationRequest));
     }
 
     @PostMapping(ApiPaths.LOGIN)

@@ -2,8 +2,11 @@ package com.anterka.bjyotish.service;
 
 import com.anterka.bjyotish.dao.BjyotishUserRepository;
 import com.anterka.bjyotish.dto.users.UserRegistrationRequest;
+import com.anterka.bjyotish.dto.users.UserRegistrationResponse;
 import com.anterka.bjyotish.entities.BjyotishUser;
 import com.anterka.bjyotish.exception.DataAlreadyExistsException;
+import com.anterka.bjyotish.exception.UserRegistrationException;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +18,26 @@ public class BjyotishAuthenticationService {
 
     private final BjyotishUserRepository bjyotishUserRepository;
     private final OtpService otpService;
+    private final EmailService emailService;
+    private final RegistrationCacheService registrationCacheService;
 
-    public void registerUser(UserRegistrationRequest request) {
+    public UserRegistrationResponse registerUser(UserRegistrationRequest request) {
         validateUserData(request);
         String otp = otpService.generateOtp();
         long otpValiditySeconds = otpService.saveOtp(request.getEmail(), otp);
-
-
+        try {
+            emailService.sendOTPMail(request.getEmail(),otp);
+        } catch (MessagingException e) {
+            throw new UserRegistrationException("Failed to send OTP email"+ e.getMessage());
+        }
+        registrationCacheService.saveRegistration(request.getEmail(),request);
+        return UserRegistrationResponse.success(
+                123L, // userId will be set after saving the user
+                request.getEmail(),
+                request.getFirstName(),
+                request.getLastName(),
+                otpValiditySeconds
+        );
     }
 
     /**
