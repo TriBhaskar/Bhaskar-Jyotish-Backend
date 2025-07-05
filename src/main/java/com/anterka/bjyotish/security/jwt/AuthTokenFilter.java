@@ -1,5 +1,7 @@
 package com.anterka.bjyotish.security.jwt;
 
+import com.anterka.bjyotish.security.AuthorizationPaths;
+import com.anterka.bjyotish.security.SecurityConfig;
 import com.anterka.bjyotish.service.BjyotishUserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,6 +19,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Component
 @RequiredArgsConstructor
@@ -26,6 +29,15 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private final BjyotishUserService bjyotishUserService;
 
     private final static Logger log = LoggerFactory.getLogger(AuthTokenFilter.class);
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        if (log.isDebugEnabled()) {
+            log.debug("Checking if path {} should be filtered", path);
+        }
+        return Arrays.asList(AuthorizationPaths.SKIP_AUTHORIZATION_REQUESTS).contains(path);
+    }
     /**
      * @param request
      * @param response
@@ -35,11 +47,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("Processing request: {}", request.getRequestURI());
-        log.info("Request method: {}", request.getMethod());
-        log.info("Request headers: {}", request.getHeaderNames());
-        log.info("Request parameters: {}", request.getParameterMap());
-
+        log.info("Processing request inside doFilterInternal : {}", request.getRequestURI());
         try {
             String jwt = getJwtFromRequest(request);
 
@@ -55,7 +63,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception ex) {
-            logger.error("Could not set user authentication in security context", ex);
+            log.error("Could not set user authentication in security context", ex);
         }
 
         filterChain.doFilter(request, response);

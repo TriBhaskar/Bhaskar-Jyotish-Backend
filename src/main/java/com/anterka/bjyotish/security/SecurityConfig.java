@@ -23,24 +23,12 @@ public class SecurityConfig {
 
     private final AuthTokenFilter authTokenFilter;
     private final AuthenticationManager authenticationManager;
-
-    private final String[] skipAuthorizationForRequests = {
-            ApiPaths.API_PREFIX+ApiPaths.LOGIN,
-            ApiPaths.API_PREFIX+ApiPaths.REGISTER,
-            ApiPaths.API_PREFIX+ApiPaths.VERIFY_OTP,
-            ApiPaths.API_PREFIX+ApiPaths.FORGOT_PASSWORD,
-            ApiPaths.API_PREFIX+ApiPaths.VALIDATE_TOKEN,
-            ApiPaths.API_PREFIX+ApiPaths.RESET_PASSWORD,
-            ApiPaths.API_PREFIX+ApiPaths.RESEND_OTP,
-            "/api/v1/testredis"
-    };
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers(skipAuthorizationForRequests).permitAll()
+                        .requestMatchers(AuthorizationPaths.SKIP_AUTHORIZATION_REQUESTS).permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

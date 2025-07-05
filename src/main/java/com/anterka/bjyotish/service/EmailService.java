@@ -9,7 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +22,8 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
-    public void sendOTPMail(String to, String otp) throws MessagingException {
+    @Async
+    public CompletableFuture<Void> sendOTPMail(String to, String otp) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
 
@@ -34,6 +39,7 @@ public class EmailService {
             throw new EmailSendingException("Failed to process email verification request");
         }
 
+        return CompletableFuture.completedFuture(null);
     }
 
     public void sendForgotPasswordLinkMail(String to, String link, long expiresIn) throws MessagingException {

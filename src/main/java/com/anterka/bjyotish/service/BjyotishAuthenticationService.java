@@ -8,6 +8,8 @@ import com.anterka.bjyotish.exception.DataAlreadyExistsException;
 import com.anterka.bjyotish.exception.UserRegistrationException;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,6 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BjyotishAuthenticationService {
 
+    private static final Logger log = LoggerFactory.getLogger(BjyotishAuthenticationService.class);
     private final BjyotishUserRepository bjyotishUserRepository;
     private final OtpService otpService;
     private final EmailService emailService;
@@ -26,7 +29,13 @@ public class BjyotishAuthenticationService {
         String otp = otpService.generateOtp();
         long otpValiditySeconds = otpService.saveOtp(request.getEmail(), otp);
         try {
-            emailService.sendOTPMail(request.getEmail(),otp);
+            // Async email sending
+            emailService.sendOTPMail(request.getEmail(), otp)
+                    .exceptionally(throwable -> {
+                        // Log the error but don't block the registration
+                        log.error("Failed to send OTP email: " + throwable.getMessage());
+                        return null;
+                    });
         } catch (MessagingException e) {
             throw new UserRegistrationException("Failed to send OTP email"+ e.getMessage());
         }
