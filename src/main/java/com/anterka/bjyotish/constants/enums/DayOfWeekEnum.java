@@ -1,4 +1,4 @@
-package com.anterka.bjyotish.constants;
+package com.anterka.bjyotish.constants.enums;
 
 public enum DayOfWeekEnum {
     SUNDAY(0), MONDAY(1), TUESDAY(2), WEDNESDAY(3),

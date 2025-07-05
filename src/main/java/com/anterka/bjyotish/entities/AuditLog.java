@@ -4,7 +4,7 @@ package com.anterka.bjyotish.entities;
 // AUDIT LOG ENTITY
 // ==============================================
 
-import com.anterka.bjyotish.constants.AuditActionEnum;
+import com.anterka.bjyotish.constants.enums.AuditActionEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

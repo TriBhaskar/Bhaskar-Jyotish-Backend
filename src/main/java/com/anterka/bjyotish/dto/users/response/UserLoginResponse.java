@@ -1,7 +1,7 @@
-package com.anterka.bjyotish.dto.users;
+package com.anterka.bjyotish.dto.users.response;
 
-import com.anterka.bjyotish.constants.UserRoleEnum;
-import com.anterka.bjyotish.constants.UserStatusEnum;
+import com.anterka.bjyotish.constants.enums.UserRoleEnum;
+import com.anterka.bjyotish.constants.enums.UserStatusEnum;
 import com.anterka.bjyotish.entities.BjyotishUser;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

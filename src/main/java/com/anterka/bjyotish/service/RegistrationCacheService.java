@@ -1,11 +1,12 @@
 package com.anterka.bjyotish.service;
 
-import com.anterka.bjyotish.dto.users.UserRegistrationRequest;
+import com.anterka.bjyotish.dto.users.request.UserRegistrationRequest;
 import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisPooled;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -24,9 +25,10 @@ public class RegistrationCacheService {
         client.expire(key, REGISTRATION_VALIDITY_SECONDS);
     }
 
-    public UserRegistrationRequest getRegistration(String email) {
+    public Optional<UserRegistrationRequest> getRegistration(String email) {
         String key = REGISTRATION_PREFIX + email;
-        return client.jsonGet(key, UserRegistrationRequest.class);
+        UserRegistrationRequest userRegistrationRequest = (UserRegistrationRequest) client.jsonGet(key);
+        return Optional.ofNullable(userRegistrationRequest);
     }
 
     public void deleteRegistration(String email) {

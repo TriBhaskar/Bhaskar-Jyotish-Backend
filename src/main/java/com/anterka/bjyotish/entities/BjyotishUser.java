@@ -1,7 +1,7 @@
 package com.anterka.bjyotish.entities;
 
-import com.anterka.bjyotish.constants.UserRoleEnum;
-import com.anterka.bjyotish.constants.UserStatusEnum;
+import com.anterka.bjyotish.constants.enums.UserRoleEnum;
+import com.anterka.bjyotish.constants.enums.UserStatusEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

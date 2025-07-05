@@ -1,4 +1,4 @@
-package com.anterka.bjyotish.dto.users;
+package com.anterka.bjyotish.dto.users.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmailVerificationRequest {
+public class UserEmailVerificationRequest {
 
     @NotBlank(message = "Email is required")
     @Email(message = "Please provide a valid email address")
     private String email;
 
-    @NotBlank(message = "Verification token is required")
-    @Size(min = 6, max = 8, message = "Verification token must be between 6 and 8 characters")
-    private String token;
+    @NotBlank(message = "Otp is required")
+    @Size(min = 6, max = 8, message = "Otp must be between 6 and 8 characters")
+    private String otp;
 }

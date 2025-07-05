@@ -1,8 +1,10 @@
 package com.anterka.bjyotish.controller.usercontrollers;
 
 import com.anterka.bjyotish.controller.constants.ApiPaths;
-import com.anterka.bjyotish.dto.users.UserRegistrationRequest;
-import com.anterka.bjyotish.dto.users.UserRegistrationResponse;
+import com.anterka.bjyotish.dto.CustomApiResponse;
+import com.anterka.bjyotish.dto.users.request.UserEmailVerificationRequest;
+import com.anterka.bjyotish.dto.users.request.UserRegistrationRequest;
+import com.anterka.bjyotish.dto.users.response.UserRegistrationResponse;
 import com.anterka.bjyotish.service.BjyotishAuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +32,9 @@ public class UserController {
         return ResponseEntity.ok("Enterprise login endpoint is not implemented yet.");
     }
 
-    @PostMapping(ApiPaths.VERIFY_OTP)
-    public ResponseEntity<String> verifyOTP() {
+    @PostMapping(ApiPaths.VERIFY_EMAIL)
+    public ResponseEntity<CustomApiResponse> verifyEmail(@Valid @RequestBody UserEmailVerificationRequest userEmailVerificationRequest) {
+        log.info("Received OTP verification request for email: " + userEmailVerificationRequest.getEmail());
         return ResponseEntity.ok("Enterprise OTP verification endpoint is not implemented yet.");
     }
 

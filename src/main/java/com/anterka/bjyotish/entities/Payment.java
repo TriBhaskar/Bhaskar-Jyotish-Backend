@@ -4,8 +4,8 @@ package com.anterka.bjyotish.entities;
 // PAYMENT ENTITY
 // ==============================================
 
-import com.anterka.bjyotish.constants.PaymentStatusEnum;
-import com.anterka.bjyotish.constants.PaymentTypeEnum;
+import com.anterka.bjyotish.constants.enums.PaymentStatusEnum;
+import com.anterka.bjyotish.constants.enums.PaymentTypeEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

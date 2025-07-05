@@ -4,7 +4,7 @@ package com.anterka.bjyotish.entities;
 // SYSTEM SETTING ENTITY
 // ==============================================
 
-import com.anterka.bjyotish.constants.DataTypeEnum;
+import com.anterka.bjyotish.constants.enums.DataTypeEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

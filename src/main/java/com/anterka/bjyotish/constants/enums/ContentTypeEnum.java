@@ -1,4 +1,4 @@
-package com.anterka.bjyotish.constants;
+package com.anterka.bjyotish.constants.enums;
 
 public enum ContentTypeEnum {
     DAILY_HOROSCOPE("Daily Horoscope"),

@@ -1,4 +1,4 @@
-package com.anterka.bjyotish.dto.users;
+package com.anterka.bjyotish.dto.users.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

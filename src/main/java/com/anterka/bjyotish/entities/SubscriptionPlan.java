@@ -1,6 +1,6 @@
 package com.anterka.bjyotish.entities;
 
-import com.anterka.bjyotish.constants.SubscriptionPlanTypeEnum;
+import com.anterka.bjyotish.constants.enums.SubscriptionPlanTypeEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

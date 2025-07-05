@@ -4,7 +4,7 @@ package com.anterka.bjyotish.entities;
 // NOTIFICATION ENTITY
 // ==============================================
 
-import com.anterka.bjyotish.constants.NotificationTypeEnum;
+import com.anterka.bjyotish.constants.enums.NotificationTypeEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +15,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 
-import static com.anterka.bjyotish.constants.NotificationTypeEnum.*;
+import static com.anterka.bjyotish.constants.enums.NotificationTypeEnum.*;
 
 @Data
 @Entity

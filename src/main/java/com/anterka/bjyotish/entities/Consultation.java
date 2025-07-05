@@ -1,6 +1,6 @@
 package com.anterka.bjyotish.entities;
 
-import com.anterka.bjyotish.constants.ConsultationStatusEnum;
+import com.anterka.bjyotish.constants.enums.ConsultationStatusEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
