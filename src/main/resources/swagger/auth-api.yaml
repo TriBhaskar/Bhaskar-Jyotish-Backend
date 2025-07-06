@@ -1,0 +1,386 @@
+openapi: 3.0.3
+info:
+  title: Bhaskar Jyotish Authentication API
+  description: API documentation for authentication and user management endpoints in the Bhaskar Jyotish application
+  version: 1.0.0
+  contact:
+    name: Bhaskar Jyotish Support
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+tags:
+  - name: Authentication
+    description: User registration, login, and token management endpoints
+
+paths:
+  /api/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Creates a new user account and sends an OTP for email verification
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+      responses:
+        '200':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegistrationResponse'
+        '400':
+          description: Bad request due to validation error or duplicate email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/verify-email:
+    post:
+      tags:
+        - Authentication
+      summary: Verify user email
+      description: Verifies user's email using OTP sent during registration
+      operationId: verifyEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserEmailVerificationRequest'
+      responses:
+        '200':
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApiResponse'
+        '400':
+          description: Invalid OTP or verification failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticates a user and provides access tokens
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: Obtain a new access token using a valid refresh token
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLoginResponse'
+        '400':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/revoke:
+    post:
+      tags:
+        - Authentication
+      summary: Revoke refresh token (logout)
+      description: Invalidates a refresh token to logout a user
+      operationId: revokeToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token revoked successfully
+        '400':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/revoke-all:
+    post:
+      tags:
+        - Authentication
+      summary: Revoke all tokens for a user (logout from all devices)
+      description: Invalidates all refresh tokens for a specific user
+      operationId: revokeAllTokens
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID of the user whose tokens should be revoked
+      responses:
+        '200':
+          description: All tokens revoked successfully
+        '400':
+          description: Invalid user ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/resend-otp:
+    post:
+      tags:
+        - Authentication
+      summary: Resend OTP for email verification
+      description: Resends the OTP for email verification (not yet implemented)
+      operationId: resendOtp
+      responses:
+        '200':
+          description: OTP resent successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Enterprise OTP resend endpoint is not implemented yet."
+
+  /api/forgot-password:
+    post:
+      tags:
+        - Authentication
+      summary: Forgot password
+      description: Initiates the forgot password flow (not yet implemented)
+      operationId: forgotPassword
+      responses:
+        '200':
+          description: Password reset instructions sent
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Enterprise forgot password endpoint is not implemented yet."
+
+  /api/validate-token:
+    post:
+      tags:
+        - Authentication
+      summary: Validate token
+      description: Validates a token's authenticity and expiration (not yet implemented)
+      operationId: validateToken
+      responses:
+        '200':
+          description: Token validation result
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Enterprise token validation endpoint is not implemented yet."
+
+  /api/reset-password:
+    post:
+      tags:
+        - Authentication
+      summary: Reset password
+      description: Resets a user's password using a token (not yet implemented)
+      operationId: resetPassword
+      responses:
+        '200':
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Enterprise password reset endpoint is not implemented yet."
+
+components:
+  schemas:
+    UserRegistrationRequest:
+      type: object
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+        - mobileNumber
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: SecurePassword123
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        mobileNumber:
+          type: string
+          example: "+1234567890"
+
+    UserRegistrationResponse:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+          example: 123
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        message:
+          type: string
+          example: "User registered successfully. Please verify your email."
+        status:
+          type: string
+          enum: [SUCCESS, FAILURE]
+          example: SUCCESS
+
+    UserEmailVerificationRequest:
+      type: object
+      required:
+        - email
+        - otp
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        otp:
+          type: string
+          example: "123456"
+
+    UserLoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: SecurePassword123
+
+    UserLoginResponse:
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 123
+            email:
+              type: string
+              format: email
+              example: user@example.com
+            firstName:
+              type: string
+              example: John
+            lastName:
+              type: string
+              example: Doe
+        accessToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refreshToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        expiresAt:
+          type: string
+          format: date-time
+          example: "2025-07-06T14:30:00Z"
+        status:
+          type: string
+          enum: [SUCCESS, FAILURE]
+          example: SUCCESS
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    CustomApiResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Email verified successfully"
+        status:
+          type: string
+          enum: [SUCCESS, FAILURE]
+          example: SUCCESS
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-07-06T10:15:30Z"
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: "Bad Request"
+        message:
+          type: string
+          example: "Email already exists"
+        path:
+          type: string
+          example: "/api/register"

@@ -154,7 +154,7 @@ public class BjyotishUser implements UserDetails, Serializable {
 
     @Override
     public boolean isEnabled() {
-        return status == UserStatusEnum.ACTIVE;
+        return status == UserStatusEnum.ACTIVE || status == UserStatusEnum.PENDING_VERIFICATION;
     }
 
     // Lifecycle callbacks for automatic timestamp updates

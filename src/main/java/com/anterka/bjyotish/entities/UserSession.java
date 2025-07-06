@@ -9,6 +9,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -31,9 +35,8 @@ public class UserSession implements Serializable {
     @SequenceGenerator(name = "user_session_sequence_generator", sequenceName = "seq_user_session_id", allocationSize = 1)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bjyotish_user_id", nullable = false)
-    private BjyotishUser bjyotishUser;
+    @Column(name = "bjyotish_user_id", nullable = false)
+    private Long bjyotishUserId;
 
     @Column(name = "session_token", nullable = false, unique = true)
     private String sessionToken;
@@ -44,23 +47,28 @@ public class UserSession implements Serializable {
     @Column(name = "expires_at", nullable = false)
     private Instant expiresAt;
 
-    @Column(name = "is_active")
+    @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;
 
     @Column(name = "ip_address")
-    private String ipAddress; // INET stored as string
+    @JdbcTypeCode(SqlTypes.INET)
+    private String ipAddress;
 
-    @Column(name = "user_agent", columnDefinition = "TEXT")
+    @Column(name = "user_agent")
     private String userAgent;
 
-    @Column(name = "created_at")
-    @Builder.Default
-    private Instant createdAt = Instant.now();
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
 
-    @Column(name = "updated_at")
-    @Builder.Default
-    private Instant updatedAt = Instant.now();
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bjyotish_user_id", insertable = false, updatable = false)
+    private BjyotishUser bjyotishUser;
 
     @PrePersist
     protected void onCreate() {

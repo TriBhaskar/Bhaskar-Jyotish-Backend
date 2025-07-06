@@ -3,9 +3,12 @@ package com.anterka.bjyotish.controller.usercontrollers;
 import com.anterka.bjyotish.controller.constants.ApiPaths;
 import com.anterka.bjyotish.dto.CustomApiResponse;
 import com.anterka.bjyotish.dto.users.request.UserEmailVerificationRequest;
+import com.anterka.bjyotish.dto.users.request.UserLoginRequest;
 import com.anterka.bjyotish.dto.users.request.UserRegistrationRequest;
+import com.anterka.bjyotish.dto.users.response.UserLoginResponse;
 import com.anterka.bjyotish.dto.users.response.UserRegistrationResponse;
 import com.anterka.bjyotish.service.BjyotishAuthenticationService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +31,9 @@ public class UserController {
     }
 
     @PostMapping(ApiPaths.LOGIN)
-    public ResponseEntity<String> login() {
-        return ResponseEntity.ok("Enterprise login endpoint is not implemented yet.");
+    public ResponseEntity<UserLoginResponse> login(@Valid @RequestBody UserLoginRequest userLoginRequest, HttpServletRequest httpRequest) {
+        log.info("Received login request for email: " + userLoginRequest.getEmail());
+        return ResponseEntity.ok(bjyotishAuthenticationService.authenticateUser(userLoginRequest, httpRequest));
     }
 
     @PostMapping(ApiPaths.VERIFY_EMAIL)
