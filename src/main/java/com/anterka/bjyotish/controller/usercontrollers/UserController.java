@@ -35,7 +35,7 @@ public class UserController {
     @PostMapping(ApiPaths.VERIFY_EMAIL)
     public ResponseEntity<CustomApiResponse> verifyEmail(@Valid @RequestBody UserEmailVerificationRequest userEmailVerificationRequest) {
         log.info("Received OTP verification request for email: " + userEmailVerificationRequest.getEmail());
-        return ResponseEntity.ok("Enterprise OTP verification endpoint is not implemented yet.");
+        return ResponseEntity.ok(bjyotishAuthenticationService.verifyUserEmail(userEmailVerificationRequest));
     }
 
     @PostMapping(ApiPaths.RESEND_OTP)
@@ -56,5 +56,12 @@ public class UserController {
     @PostMapping(ApiPaths.RESET_PASSWORD)
     public ResponseEntity<String> resetPassword() {
         return ResponseEntity.ok("Enterprise password reset endpoint is not implemented yet.");
+    }
+
+    //for redis testing purpose
+    @PostMapping("v1/testredis")
+    public ResponseEntity<String> testRedis(@RequestBody UserRegistrationRequest request) {
+        log.info("Received test redis request for email: " + request.getEmail());
+        return ResponseEntity.ok(request.toString());
     }
 }

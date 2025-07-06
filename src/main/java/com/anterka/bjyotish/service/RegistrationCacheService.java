@@ -27,8 +27,14 @@ public class RegistrationCacheService {
 
     public Optional<UserRegistrationRequest> getRegistration(String email) {
         String key = REGISTRATION_PREFIX + email;
-        UserRegistrationRequest userRegistrationRequest = (UserRegistrationRequest) client.jsonGet(key);
-        return Optional.ofNullable(userRegistrationRequest);
+        Object jsonResult = client.jsonGet(key);
+        if (jsonResult == null) {
+            return Optional.empty();
+        }
+        // Convert the JSON object to string first
+        String jsonStr = gson.toJson(jsonResult);
+        UserRegistrationRequest request = gson.fromJson(jsonStr, UserRegistrationRequest.class);
+        return Optional.ofNullable(request);
     }
 
     public void deleteRegistration(String email) {
