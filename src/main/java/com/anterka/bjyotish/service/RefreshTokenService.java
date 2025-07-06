@@ -24,6 +24,7 @@ public class RefreshTokenService {
 
     private final UserSessionRepository userSessionRepository;
     private final JwtUtils jwtUtils;
+    private final SecureRandom secureRandom = new SecureRandom();
 
     @Value("${jwt.security.refresh-token.expiration.time.in-days:30}")
     private int refreshTokenExpirationInDays;
@@ -89,7 +90,7 @@ public class RefreshTokenService {
 
         // Generate new access token
         BjyotishUser user = session.getBjyotishUser();
-        String newAccessToken = jwtUtils.generateJwtToken(user);
+        String newAccessToken = jwtUtils.generateJwtToken(user.getEmail());
 
         // Update session with new access token
         session.setSessionToken(newAccessToken);
@@ -158,7 +159,6 @@ public class RefreshTokenService {
      * Generates a cryptographically secure random refresh token
      */
     private String generateRefreshToken() {
-        SecureRandom secureRandom = new SecureRandom();
         byte[] tokenBytes = new byte[refreshTokenLength];
         secureRandom.nextBytes(tokenBytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);

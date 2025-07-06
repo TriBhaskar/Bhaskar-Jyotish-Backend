@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -71,6 +72,10 @@ public class BjyotishAuthenticationService {
     }
 
     public UserLoginResponse authenticateUser(UserLoginRequest request, HttpServletRequest httpRequest){
+        Instant startTime1 = Instant.now();
+        // Fetch user first to avoid duplicate queries
+        BjyotishUser bjyotishUser = bjyotishUserRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UserAuthenticationException("User not found"));
         try {
             authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
@@ -83,13 +88,29 @@ public class BjyotishAuthenticationService {
             throw new UserAuthenticationException("Exception occurred while authenticating the user: [" + request.getEmail() + "], Error: " + ex.getMessage());
         }
         log.info("User authenticated successfully!!");
-        BjyotishUser bjyotishUser = bjyotishUserRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UserAuthenticationException("User with email: [" + request.getEmail() + "] not found"));
-        String jwtToken = jwtUtils.generateJwtToken(bjyotishUser);
+        Instant endTime1 = Instant.now();
+        log.info("Authentication time: {} ms", endTime1.toEpochMilli() - startTime1.toEpochMilli());
+
+        Instant startTime2 = Instant.now();
+
+        CompletableFuture<String> jwtFuture = CompletableFuture.supplyAsync(() ->
+                jwtUtils.generateJwtToken(bjyotishUser.getEmail())
+        );
         Instant expirationTime = Instant.ofEpochMilli(jwtUtils.getJwtExpirationTimeInMillis());
+        Instant endTime2 = Instant.now();
+        log.info("Jwt generation time: {} ms", endTime2.toEpochMilli() - startTime2.toEpochMilli());
 
         // Create user session with refresh token
-        UserSession userSession = refreshTokenService.createSession(bjyotishUser, jwtToken, httpRequest);
+        Instant startTime3 = Instant.now();
+        CompletableFuture<UserSession> sessionFuture = jwtFuture.thenApplyAsync(jwt ->
+                refreshTokenService.createSession(bjyotishUser, jwt, httpRequest)
+        );
+
+        // Wait for both operations to complete
+        String jwtToken = jwtFuture.join();
+        UserSession userSession = sessionFuture.join();
+        Instant endTime3 = Instant.now();
+        log.info("User session creation time: {} ms", endTime3.toEpochMilli() - startTime3.toEpochMilli());
         return UserLoginResponse.success(bjyotishUser,jwtToken,userSession.getRefreshToken(),expirationTime);
     }
 

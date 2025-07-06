@@ -24,8 +24,11 @@ public class JwtUtils {
     private long jwtExpirationTimeInMillis = 1000 * 60 * 60 * 2; // 2 hours
     private final Environment env;
 
+    private final Key signingKey;
+
     public JwtUtils(Environment env) {
         this.env = env;
+        this.signingKey = initializeSigningKey();
     }
 
     /**
@@ -46,8 +49,8 @@ public class JwtUtils {
     /**
      * generates the token just with the userDetails if there are no Claims
      */
-    public String generateJwtToken(UserDetails userDetails) {
-        return generateJwtToken(new HashMap<>(), userDetails);
+    public String generateJwtToken(String userPrincipal) {
+        return generateJwtToken(new HashMap<>(), userPrincipal);
     }
 
     /**
@@ -55,12 +58,12 @@ public class JwtUtils {
      * Fetches the expiration time in hours from the properties
      * Default expiration time is [2] hours
      */
-    public String generateJwtToken(Map<String, Object> claims, @NonNull UserDetails userDetails) {
+    public String generateJwtToken(Map<String, Object> claims, @NonNull String userPrincipal) {
         int expirationTimeInHours = Integer.parseInt(env.getProperty("jwt.security.secret-key.expiration.time.in-hours", "2"));
         jwtExpirationTimeInMillis = 1000L * 60 * 60 * expirationTimeInHours;
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(userDetails.getUsername())
+                .setSubject(userPrincipal)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationTimeInMillis))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -101,8 +104,12 @@ public class JwtUtils {
      * @return Key using [SH256 signature Algorithm]
      * */
     private Key getSignInKey() {
-        final String secret_key = env.getProperty("jwt.security.secret-key");
-        byte[] signInKeyBytes = Decoders.BASE64.decode(secret_key);
+        return signingKey;
+    }
+
+    private Key initializeSigningKey() {
+        final String secretKey = env.getProperty("jwt.security.secret-key");
+        byte[] signInKeyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(signInKeyBytes);
     }
 }
