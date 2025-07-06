@@ -6,6 +6,8 @@ import com.anterka.bjyotish.dto.ResponseStatusEnum;
 import com.anterka.bjyotish.dto.users.request.UserEmailVerificationRequest;
 import com.anterka.bjyotish.dto.users.request.UserLoginRequest;
 import com.anterka.bjyotish.dto.users.request.UserRegistrationRequest;
+import com.anterka.bjyotish.dto.users.request.UserResendOtpRequest;
+import com.anterka.bjyotish.dto.users.response.ResendOtpResponse;
 import com.anterka.bjyotish.dto.users.response.UserLoginResponse;
 import com.anterka.bjyotish.dto.users.response.UserRegistrationResponse;
 import com.anterka.bjyotish.entities.BjyotishUser;
@@ -71,6 +73,7 @@ public class BjyotishAuthenticationService {
         );
     }
 
+    @Transactional
     public UserLoginResponse authenticateUser(UserLoginRequest request, HttpServletRequest httpRequest){
         Instant startTime1 = Instant.now();
         // Fetch user first to avoid duplicate queries
@@ -123,11 +126,6 @@ public class BjyotishAuthenticationService {
                     if (cachedOtp == null || !cachedOtp.equals(request.getOtp())) {
                         throw new UserRegistrationException("Invalid OTP for email: " + request.getEmail());
                     }
-                    // Save the user to the database
-                    bjyotishUserRepository.save(userRegistrationMapper.toEntity(registration));
-                    registrationCacheService.deleteRegistration(request.getEmail());
-                    otpService.deleteOtp(request.getEmail());
-                    log.info("User registration successful for email: {}", request.getEmail());
                 }, () -> {
                     throw new UserRegistrationException("No registration found for email: " + request.getEmail());
                 });
@@ -135,6 +133,35 @@ public class BjyotishAuthenticationService {
                 .status(ResponseStatusEnum.SUCCESS)
                 .message("User registered successfully")
                 .timestamp(LocalDateTime.now()).build();
+    }
+
+    @Transactional
+    public ResendOtpResponse resendOtp(UserResendOtpRequest request) {
+
+        if(registrationCacheService.registrationExists(request.getEmail())){
+            String otp = otpService.generateOtp();
+            otpService.saveOtp(request.getEmail(), otp);
+            try {
+                // Async email sending
+                emailService.sendOTPMail(request.getEmail(), otp)
+                        .exceptionally(throwable -> {
+                            // Log the error but don't block the resend
+                            log.error("Failed to send OTP email: {}", throwable.getMessage());
+                            return null;
+                        });
+            } catch (MessagingException e) {
+                throw new UserRegistrationException("Failed to send OTP email"+ e.getMessage());
+            }
+        }else {
+            throw new UserRegistrationException("No registration found for email: " + request.getEmail());
+        }
+
+        return ResendOtpResponse.builder()
+                .email(request.getEmail())
+                .otpValiditySeconds(OtpService.OTP_VALIDITY_SECONDS)
+                .message("OTP resent successfully please verify your email to activate your account")
+                .timestamp(LocalDateTime.now())
+                .build();
     }
 
     /**

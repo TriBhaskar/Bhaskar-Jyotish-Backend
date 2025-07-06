@@ -16,7 +16,7 @@ public class OtpService {
     private static final int OTP_LENGTH = 6;
 
     private static final String OTP_PREFIX = "otp_";
-    private static final long OTP_VALIDITY_SECONDS = TimeUnit.SECONDS.toSeconds(600); // 10 minutes
+    protected static final long OTP_VALIDITY_SECONDS = TimeUnit.SECONDS.toSeconds(600); // 10 minutes
 
     public long saveOtp(String email, String otp) {
         String key = OTP_PREFIX + email;

@@ -5,6 +5,8 @@ import com.anterka.bjyotish.dto.CustomApiResponse;
 import com.anterka.bjyotish.dto.users.request.UserEmailVerificationRequest;
 import com.anterka.bjyotish.dto.users.request.UserLoginRequest;
 import com.anterka.bjyotish.dto.users.request.UserRegistrationRequest;
+import com.anterka.bjyotish.dto.users.request.UserResendOtpRequest;
+import com.anterka.bjyotish.dto.users.response.ResendOtpResponse;
 import com.anterka.bjyotish.dto.users.response.UserLoginResponse;
 import com.anterka.bjyotish.dto.users.response.UserRegistrationResponse;
 import com.anterka.bjyotish.service.BjyotishAuthenticationService;
@@ -43,8 +45,8 @@ public class UserController {
     }
 
     @PostMapping(ApiPaths.RESEND_OTP)
-    public ResponseEntity<String> resendOTP() {
-        return ResponseEntity.ok("Enterprise OTP resend endpoint is not implemented yet.");
+    public ResponseEntity<ResendOtpResponse> resendOTP(@Valid @RequestBody UserResendOtpRequest userResendOtpRequest) {
+        return ResponseEntity.ok(bjyotishAuthenticationService.resendOtp(userResendOtpRequest));
     }
 
     @PostMapping(ApiPaths.FORGOT_PASSWORD)

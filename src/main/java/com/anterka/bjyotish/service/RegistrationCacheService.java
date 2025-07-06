@@ -37,6 +37,11 @@ public class RegistrationCacheService {
         return Optional.ofNullable(request);
     }
 
+    public boolean registrationExists(String email) {
+        String key = REGISTRATION_PREFIX + email;
+        return client.exists(key);
+    }
+
     public void deleteRegistration(String email) {
         String key = REGISTRATION_PREFIX + email;
         client.del(key);
