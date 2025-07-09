@@ -1,7 +1,6 @@
 package com.anterka.bjyotish.entities;
 
 import com.anterka.bjyotish.constants.enums.ContentTypeEnum;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,51 +13,34 @@ import java.time.LocalDate;
 
 // PersonalizedContent Entity
 @Data
-@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "personalized_content")
 public class PersonalizedContent implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "personalized_content_sequence_generator")
-    @Column(name = "id")
-    @SequenceGenerator(name = "personalized_content_sequence_generator", sequenceName = "seq_personalized_content_id", allocationSize = 1)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bjyotish_user_id", nullable = false)
     private BjyotishUser bjyotishUser;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "content_type", nullable = false)
     private ContentTypeEnum contentType;
 
-    @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "content_date", nullable = false)
     private LocalDate contentDate;
 
-    @Column(name = "is_sent")
     @Builder.Default
     private Boolean isSent = false;
 
-    @Column(name = "sent_at")
     private Instant sentAt;
 
-    @Column(name = "created_at")
     @Builder.Default
     private Instant createdAt = Instant.now();
 
-    @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();
     }

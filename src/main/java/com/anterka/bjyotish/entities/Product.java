@@ -1,10 +1,5 @@
 package com.anterka.bjyotish.entities;
 
-// ==============================================
-// PRODUCT ENTITY
-// ==============================================
-
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,71 +11,50 @@ import java.time.Instant;
 import java.util.List;
 
 @Data
-@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "products")
 public class Product implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_sequence_generator")
-    @Column(name = "id")
-    @SequenceGenerator(name = "product_sequence_generator", sequenceName = "seq_product_id", allocationSize = 1)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
     private ProductCategory category;
 
-    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private java.math.BigDecimal price;
 
-    @Column(name = "discount_price", precision = 10, scale = 2)
     private java.math.BigDecimal discountPrice;
 
-    @Column(name = "images", columnDefinition = "TEXT[]")
     private String[] images;
 
-    @Column(name = "is_digital")
     @Builder.Default
     private Boolean isDigital = false;
 
-    @Column(name = "stock_quantity")
     @Builder.Default
     private Integer stockQuantity = 0;
 
-    @Column(name = "is_active")
     @Builder.Default
     private Boolean isActive = true;
 
-    @Column(name = "created_at")
     @Builder.Default
     private Instant createdAt = Instant.now();
 
-    @Column(name = "updated_at")
     @Builder.Default
     private Instant updatedAt = Instant.now();
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 
-    @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();
         updatedAt = Instant.now();
     }
 
-    @PreUpdate
     protected void onUpdate() {
         updatedAt = Instant.now();
     }

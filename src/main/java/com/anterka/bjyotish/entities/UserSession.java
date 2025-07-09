@@ -1,82 +1,51 @@
 package com.anterka.bjyotish.entities;
 
-// ==============================================
-// USER SESSION ENTITY
-// ==============================================
-
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.type.SqlTypes;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 
 @Data
-@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "user_sessions")
 public class UserSession implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_session_sequence_generator")
-    @Column(name = "id")
-    @SequenceGenerator(name = "user_session_sequence_generator", sequenceName = "seq_user_session_id", allocationSize = 1)
     private Long id;
 
-    @Column(name = "bjyotish_user_id", nullable = false)
     private Long bjyotishUserId;
 
-    @Column(name = "session_token", nullable = false, unique = true)
     private String sessionToken;
 
-    @Column(name = "refresh_token", unique = true)
     private String refreshToken;
 
-    @Column(name = "expires_at", nullable = false)
     private Instant expiresAt;
 
-    @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;
 
-    @Column(name = "ip_address")
-    @JdbcTypeCode(SqlTypes.INET)
     private String ipAddress;
 
-    @Column(name = "user_agent")
     private String userAgent;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bjyotish_user_id", insertable = false, updatable = false)
     private BjyotishUser bjyotishUser;
 
-    @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();
         updatedAt = Instant.now();
     }
 
-    @PreUpdate
     protected void onUpdate() {
         updatedAt = Instant.now();
     }

@@ -1,6 +1,5 @@
 package com.anterka.bjyotish.entities;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,47 +11,32 @@ import java.time.Instant;
 import java.util.List;
 
 @Data
-@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "product_categories")
 public class ProductCategory implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_category_sequence_generator")
-    @Column(name = "id")
-    @SequenceGenerator(name = "product_category_sequence_generator", sequenceName = "seq_product_category_id", allocationSize = 1)
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_category_id")
     private ProductCategory parentCategory;
 
-    @Column(name = "is_active")
     @Builder.Default
     private Boolean isActive = true;
 
-    @Column(name = "created_at")
     @Builder.Default
     private Instant createdAt = Instant.now();
 
-    @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProductCategory> subCategories;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Product> products;
 
-    @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();
     }

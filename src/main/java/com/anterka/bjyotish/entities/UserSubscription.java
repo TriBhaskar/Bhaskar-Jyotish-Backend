@@ -1,13 +1,11 @@
 package com.anterka.bjyotish.entities;
 
 import com.anterka.bjyotish.constants.enums.SubscriptionStatusEnum;
-import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcType;
-import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -17,64 +15,43 @@ import java.time.temporal.ChronoUnit;
 
 // UserSubscription Entity
 @Data
-@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "user_subscriptions")
 public class UserSubscription implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_subscription_sequence_generator")
-    @Column(name = "id")
-    @SequenceGenerator(name = "user_subscription_sequence_generator", sequenceName = "seq_user_subscription_id", allocationSize = 1)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bjyotish_user_id", nullable = false)
     private BjyotishUser bjyotishUser;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "plan_id", nullable = false)
     private SubscriptionPlan plan;
 
-    @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    @JdbcType(PostgreSQLEnumJdbcType.class)
     @Builder.Default
     private SubscriptionStatusEnum status = SubscriptionStatusEnum.ACTIVE;
 
-    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
-    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-    @Column(name = "auto_renewal")
     @Builder.Default
     private Boolean autoRenewal = true;
 
-    @Column(name = "payment_method", length = 50)
     private String paymentMethod;
 
-    @Column(name = "created_at")
     @Builder.Default
     private Instant createdAt = Instant.now();
 
-    @Column(name = "updated_at")
     @Builder.Default
     private Instant updatedAt = Instant.now();
 
-    @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();
         updatedAt = Instant.now();
     }
 
-    @PreUpdate
     protected void onUpdate() {
         updatedAt = Instant.now();
     }

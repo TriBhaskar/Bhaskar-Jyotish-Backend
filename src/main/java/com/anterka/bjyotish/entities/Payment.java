@@ -6,7 +6,6 @@ package com.anterka.bjyotish.entities;
 
 import com.anterka.bjyotish.constants.enums.PaymentStatusEnum;
 import com.anterka.bjyotish.constants.enums.PaymentTypeEnum;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,75 +17,51 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 @Data
-@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "payments")
 public class Payment implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "payment_sequence_generator")
-    @Column(name = "id")
-    @SequenceGenerator(name = "payment_sequence_generator", sequenceName = "seq_payment_id", allocationSize = 1)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bjyotish_user_id", nullable = false)
     private BjyotishUser bjyotishUser;
 
-    @Column(name = "amount", precision = 10, scale = 2, nullable = false)
     private BigDecimal amount;
 
-    @Column(name = "currency", length = 3)
     @Builder.Default
     private String currency = "INR";
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "payment_type", nullable = false)
     private PaymentTypeEnum paymentType;
 
-    @Column(name = "reference_id")
     private Long referenceId; // consultation_id, subscription_id, or order_id
 
-    @Column(name = "payment_method", length = 50)
     private String paymentMethod;
 
-    @Column(name = "payment_gateway", length = 50)
     private String paymentGateway;
 
-    @Column(name = "gateway_transaction_id")
     private String gatewayTransactionId;
 
-    @Column(name = "gateway_payment_id")
     private String gatewayPaymentId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
     @Builder.Default
     private PaymentStatusEnum status = PaymentStatusEnum.PENDING;
 
-    @Column(name = "paid_at")
     private Instant paidAt;
 
-    @Column(name = "created_at")
     @Builder.Default
     private Instant createdAt = Instant.now();
 
-    @Column(name = "updated_at")
     @Builder.Default
     private Instant updatedAt = Instant.now();
 
-    @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();
         updatedAt = Instant.now();
     }
 
-    @PreUpdate
     protected void onUpdate() {
         updatedAt = Instant.now();
     }

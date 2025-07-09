@@ -1,6 +1,6 @@
 package com.anterka.bjyotish.entities;
 
-import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,47 +12,33 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 @Data
-@Entity
+
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "planetary_positions")
 public class PlanetaryPosition implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "planetary_position_sequence_generator")
-    @Column(name = "id")
-    @SequenceGenerator(name = "planetary_position_sequence_generator", sequenceName = "seq_planetary_position_id", allocationSize = 1)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "birth_chart_id", nullable = false)
     private BirthChart birthChart;
 
-    @Column(name = "planet", length = 50, nullable = false)
     private String planet;
 
-    @Column(name = "sign", length = 50, nullable = false)
     private String sign;
 
-    @Column(name = "degree", precision = 5, scale = 2, nullable = false)
     private BigDecimal degree;
 
-    @Column(name = "house", nullable = false)
     private Integer house;
 
-    @Column(name = "retrograde")
     @Builder.Default
     private Boolean retrograde = false;
 
-    @Column(name = "created_at")
     @Builder.Default
     private Instant createdAt = Instant.now();
 
-    @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();
     }

@@ -1,6 +1,5 @@
 package com.anterka.bjyotish.entities;
 
-import jakarta.persistence.Entity;
 import lombok.Builder;
 
 import java.time.Instant;

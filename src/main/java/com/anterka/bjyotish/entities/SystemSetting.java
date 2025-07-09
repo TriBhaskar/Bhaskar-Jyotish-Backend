@@ -1,11 +1,7 @@
 package com.anterka.bjyotish.entities;
 
-// ==============================================
-// SYSTEM SETTING ENTITY
-// ==============================================
 
 import com.anterka.bjyotish.constants.enums.DataTypeEnum;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,55 +12,39 @@ import java.io.Serializable;
 import java.time.Instant;
 
 @Data
-@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "system_settings")
 public class SystemSetting implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "system_setting_sequence_generator")
-    @Column(name = "id")
-    @SequenceGenerator(name = "system_setting_sequence_generator", sequenceName = "seq_system_setting_id", allocationSize = 1)
     private Long id;
 
-    @Column(name = "setting_key", nullable = false, unique = true, length = 100)
     private String settingKey;
 
-    @Column(name = "setting_value", columnDefinition = "TEXT")
     private String settingValue;
 
-    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "data_type", length = 20)
     @Builder.Default
     private DataTypeEnum dataType = DataTypeEnum.STRING;
 
-    @Column(name = "is_public")
     @Builder.Default
     private Boolean isPublic = false;
 
-    @Column(name = "created_at")
     @Builder.Default
     private Instant createdAt = Instant.now();
 
-    @Column(name = "updated_at")
     @Builder.Default
     private Instant updatedAt = Instant.now();
 
-    @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();
         updatedAt = Instant.now();
     }
 
-    @PreUpdate
     protected void onUpdate() {
         updatedAt = Instant.now();
     }
