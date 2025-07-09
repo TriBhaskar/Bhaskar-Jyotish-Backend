@@ -43,13 +43,13 @@ public class RefreshTokenController {
         RefreshTokenService.TokenRefreshResult tokenResult = result.get();
 
         UserLoginResponse response = UserLoginResponse.success(
-                tokenResult.getUser(),
+                tokenResult.getUserRecord(),
                 tokenResult.getAccessToken(),
                 tokenResult.getRefreshToken(),
                 tokenResult.getExpiresAt()
         );
 
-        log.info("Successfully refreshed token for user: {}", tokenResult.getUser().getEmail());
+        log.info("Successfully refreshed token for user: {}", tokenResult.getUserRecord().email());
         return ResponseEntity.ok(response);
     }
 

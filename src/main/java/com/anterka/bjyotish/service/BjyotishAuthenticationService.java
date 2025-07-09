@@ -1,5 +1,6 @@
 package com.anterka.bjyotish.service;
 
+import com.anterka.bjyotish.dao.BjyotishUserJdbcRepository;
 import com.anterka.bjyotish.dao.BjyotishUserRepository;
 import com.anterka.bjyotish.dto.CustomApiResponse;
 import com.anterka.bjyotish.dto.ResponseStatusEnum;
@@ -11,7 +12,9 @@ import com.anterka.bjyotish.dto.users.response.ResendOtpResponse;
 import com.anterka.bjyotish.dto.users.response.UserLoginResponse;
 import com.anterka.bjyotish.dto.users.response.UserRegistrationResponse;
 import com.anterka.bjyotish.entities.BjyotishUser;
+import com.anterka.bjyotish.entities.BjyotishUserRecord;
 import com.anterka.bjyotish.entities.UserSession;
+import com.anterka.bjyotish.entities.UserSessionRecord;
 import com.anterka.bjyotish.exception.CredentialValidationException;
 import com.anterka.bjyotish.exception.DataAlreadyExistsException;
 import com.anterka.bjyotish.exception.UserAuthenticationException;
@@ -39,7 +42,7 @@ import java.util.concurrent.CompletableFuture;
 public class BjyotishAuthenticationService {
 
     private static final Logger log = LoggerFactory.getLogger(BjyotishAuthenticationService.class);
-    private final BjyotishUserRepository bjyotishUserRepository;
+    private final BjyotishUserJdbcRepository bjyotishUserRepository;
     private final OtpService otpService;
     private final EmailService emailService;
     private final RegistrationCacheService registrationCacheService;
@@ -77,7 +80,7 @@ public class BjyotishAuthenticationService {
     public UserLoginResponse authenticateUser(UserLoginRequest request, HttpServletRequest httpRequest){
         Instant startTime1 = Instant.now();
         // Fetch user first to avoid duplicate queries
-        BjyotishUser bjyotishUser = bjyotishUserRepository.findByEmail(request.getEmail())
+        BjyotishUserRecord bjyotishUser = bjyotishUserRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UserAuthenticationException("User not found"));
         try {
             authenticationManager.authenticate(
@@ -97,7 +100,7 @@ public class BjyotishAuthenticationService {
         Instant startTime2 = Instant.now();
 
         CompletableFuture<String> jwtFuture = CompletableFuture.supplyAsync(() ->
-                jwtUtils.generateJwtToken(bjyotishUser.getEmail())
+                jwtUtils.generateJwtToken(bjyotishUser.email())
         );
         Instant expirationTime = Instant.ofEpochMilli(jwtUtils.getJwtExpirationTimeInMillis());
         Instant endTime2 = Instant.now();
@@ -105,16 +108,16 @@ public class BjyotishAuthenticationService {
 
         // Create user session with refresh token
         Instant startTime3 = Instant.now();
-        CompletableFuture<UserSession> sessionFuture = jwtFuture.thenApplyAsync(jwt ->
+        CompletableFuture<UserSessionRecord> sessionFuture = jwtFuture.thenApplyAsync(jwt ->
                 refreshTokenService.createSession(bjyotishUser, jwt, httpRequest)
         );
 
         // Wait for both operations to complete
         String jwtToken = jwtFuture.join();
-        UserSession userSession = sessionFuture.join();
+        UserSessionRecord userSession = sessionFuture.join();
         Instant endTime3 = Instant.now();
         log.info("User session creation time: {} ms", endTime3.toEpochMilli() - startTime3.toEpochMilli());
-        return UserLoginResponse.success(bjyotishUser,jwtToken,userSession.getRefreshToken(),expirationTime);
+        return UserLoginResponse.success(bjyotishUser,jwtToken,userSession.refreshToken(),expirationTime);
     }
 
     @Transactional
@@ -171,7 +174,7 @@ public class BjyotishAuthenticationService {
     private void validateUserData(UserRegistrationRequest request) {
         bjyotishUserRepository.findByEmailOrPhone(request.getEmail(), request.getPhone())
                 .ifPresent(user -> {
-                    if (user.getEmail().equals(request.getEmail())) {
+                    if (user.email().equals(request.getEmail())) {
                         throw new DataAlreadyExistsException("Email already exists: " + request.getEmail());
                     } else {
                         throw new DataAlreadyExistsException("Phone already exists: " + request.getPhone());

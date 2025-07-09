@@ -3,6 +3,7 @@ package com.anterka.bjyotish.dto.users.response;
 import com.anterka.bjyotish.constants.enums.UserRoleEnum;
 import com.anterka.bjyotish.constants.enums.UserStatusEnum;
 import com.anterka.bjyotish.entities.BjyotishUser;
+import com.anterka.bjyotish.entities.BjyotishUserRecord;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,21 +31,21 @@ public class UserLoginResponse {
     private String profileImageUrl;
 
     // Static factory methods
-    public static UserLoginResponse success(BjyotishUser user, String accessToken,
+    public static UserLoginResponse success(BjyotishUserRecord user, String accessToken,
                                             String refreshToken, Instant tokenExpiresAt) {
         return UserLoginResponse.builder()
-                .userId(user.getId())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
+                .userId(user.id())
+                .email(user.email())
+                .firstName(user.firstName())
+                .lastName(user.lastName())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .tokenExpiresAt(tokenExpiresAt)
-                .role(user.getRole())
-                .status(user.getStatus())
-                .emailVerified(user.getEmailVerified())
-                .phoneVerified(user.getPhoneVerified())
-                .profileImageUrl(user.getProfileImageUrl())
+                .role(user.role())
+                .status(user.status())
+                .emailVerified(user.emailVerified())
+                .phoneVerified(user.phoneVerified())
+                .profileImageUrl(user.profileImageUrl())
                 .build();
     }
 }

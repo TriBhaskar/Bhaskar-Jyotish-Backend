@@ -1,8 +1,9 @@
 package com.anterka.bjyotish.service;
 
-import com.anterka.bjyotish.dao.UserSessionRepository;
-import com.anterka.bjyotish.entities.BjyotishUser;
-import com.anterka.bjyotish.entities.UserSession;
+import com.anterka.bjyotish.dao.BjyotishUserJdbcRepository;
+import com.anterka.bjyotish.dao.UserSessionJdbcRepository;
+import com.anterka.bjyotish.entities.BjyotishUserRecord;
+import com.anterka.bjyotish.entities.UserSessionRecord;
 import com.anterka.bjyotish.security.jwt.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,8 @@ import java.util.Optional;
 @Slf4j
 public class RefreshTokenService {
 
-    private final UserSessionRepository userSessionRepository;
+    private final UserSessionJdbcRepository userSessionRepository;
+    private final BjyotishUserJdbcRepository userRepository;
     private final JwtUtils jwtUtils;
     private final SecureRandom secureRandom = new SecureRandom();
 
@@ -39,30 +41,33 @@ public class RefreshTokenService {
      * Creates a new user session with access token and refresh token
      */
     @Transactional
-    public UserSession createSession(BjyotishUser user, String accessToken, HttpServletRequest request) {
+    public UserSessionRecord createSession(BjyotishUserRecord user, String accessToken, HttpServletRequest request) {
         // Check if user has too many active sessions
-        long activeSessionCount = userSessionRepository.countActiveSessionsForUser(user.getId());
+        long activeSessionCount = userSessionRepository.countActiveSessionsForUser(user.id());
         if (activeSessionCount >= maxActiveSessions) {
             // Deactivate oldest session or all sessions based on business logic
-            log.info("User {} has reached max active sessions limit. Deactivating oldest session.", user.getEmail());
-            deactivateOldestSession(user.getId());
+            log.info("User {} has reached max active sessions limit. Deactivating oldest session.", user.email());
+            deactivateOldestSession(user.id());
         }
 
         String refreshToken = generateRefreshToken();
         Instant refreshTokenExpiresAt = Instant.now().plusSeconds(refreshTokenExpirationInDays * 24 * 60 * 60L);
 
-        UserSession session = UserSession.builder()
-                .bjyotishUserId(user.getId())
-                .sessionToken(accessToken)
-                .refreshToken(refreshToken)
-                .expiresAt(refreshTokenExpiresAt)
-                .isActive(true)
-                .ipAddress(getClientIpAddress(request))
-                .userAgent(request.getHeader("User-Agent"))
-                .build();
+        UserSessionRecord session = new UserSessionRecord(
+                null,
+                user.id(),
+                accessToken,
+                refreshToken,
+                refreshTokenExpiresAt,
+                true,
+                getClientIpAddress(request),
+                request.getHeader("User-Agent"),
+                Instant.now(),
+                Instant.now()
+        );
 
-        UserSession savedSession = userSessionRepository.save(session);
-        log.info("Created new session for user: {}", user.getEmail());
+        UserSessionRecord savedSession = userSessionRepository.save(session);
+        log.info("Created new session for user: {}", user.email());
         return savedSession;
     }
 
@@ -71,41 +76,70 @@ public class RefreshTokenService {
      */
     @Transactional
     public Optional<TokenRefreshResult> refreshAccessToken(String refreshToken, HttpServletRequest request) {
-        Optional<UserSession> sessionOpt = userSessionRepository.findByRefreshTokenAndIsActiveTrue(refreshToken);
+        Optional<UserSessionRecord> sessionOpt = userSessionRepository.findByRefreshTokenAndIsActiveTrue(refreshToken);
 
         if (sessionOpt.isEmpty()) {
             log.warn("Invalid or expired refresh token provided");
             return Optional.empty();
         }
 
-        UserSession session = sessionOpt.get();
+        UserSessionRecord session = sessionOpt.get();
 
         // Check if refresh token is expired
-        if (session.getExpiresAt().isBefore(Instant.now())) {
-            log.warn("Refresh token has expired for user session: {}", session.getId());
-            session.setIsActive(false);
-            userSessionRepository.save(session);
+        if (session.expiresAt().isBefore(Instant.now())) {
+            log.warn("Refresh token has expired for user session: {}", session.id());
+            // Create a new session record with isActive set to false
+            UserSessionRecord deactivatedSession = new UserSessionRecord(
+                    session.id(),
+                    session.bjyotishUserId(),
+                    session.sessionToken(),
+                    session.refreshToken(),
+                    session.expiresAt(),
+                    false, // Set isActive to false
+                    session.ipAddress(),
+                    session.userAgent(),
+                    session.createdAt(),
+                    Instant.now()
+            );
+            userSessionRepository.save(deactivatedSession);
             return Optional.empty();
         }
 
+        // Get user by ID
+        Optional<BjyotishUserRecord> userOpt = userRepository.findById(session.bjyotishUserId());
+        if (userOpt.isEmpty()) {
+            log.warn("User not found for session: {}", session.id());
+            return Optional.empty();
+        }
+
+        BjyotishUserRecord user = userOpt.get();
+
         // Generate new access token
-        BjyotishUser user = session.getBjyotishUser();
-        String newAccessToken = jwtUtils.generateJwtToken(user.getEmail());
+        String newAccessToken = jwtUtils.generateJwtToken(user.email());
 
-        // Update session with new access token
-        session.setSessionToken(newAccessToken);
-        session.setIpAddress(getClientIpAddress(request));
-        session.setUserAgent(request.getHeader("User-Agent"));
+        // Create updated session with new access token and request details
+        UserSessionRecord updatedSession = new UserSessionRecord(
+                session.id(),
+                session.bjyotishUserId(),
+                newAccessToken,
+                session.refreshToken(),
+                session.expiresAt(),
+                session.isActive(),
+                getClientIpAddress(request),
+                request.getHeader("User-Agent"),
+                session.createdAt(),
+                Instant.now()
+        );
 
-        userSessionRepository.save(session);
+        userSessionRepository.save(updatedSession);
 
-        log.info("Successfully refreshed access token for user: {}", user.getEmail());
+        log.info("Successfully refreshed access token for user: {}", user.email());
 
         return Optional.of(TokenRefreshResult.builder()
                 .accessToken(newAccessToken)
                 .refreshToken(refreshToken)
                 .expiresAt(Instant.ofEpochMilli(System.currentTimeMillis() + jwtUtils.getJwtExpirationTimeInMillis()))
-                .user(user)
+                .userRecord(user)
                 .build());
     }
 
@@ -117,14 +151,14 @@ public class RefreshTokenService {
             return false;
         }
 
-        Optional<UserSession> sessionOpt = userSessionRepository.findByRefreshTokenAndIsActiveTrue(refreshToken);
+        Optional<UserSessionRecord> sessionOpt = userSessionRepository.findByRefreshTokenAndIsActiveTrue(refreshToken);
 
         if (sessionOpt.isEmpty()) {
             return false;
         }
 
-        UserSession session = sessionOpt.get();
-        return session.getExpiresAt().isAfter(Instant.now());
+        UserSessionRecord session = sessionOpt.get();
+        return session.expiresAt().isAfter(Instant.now());
     }
 
     /**
@@ -132,17 +166,29 @@ public class RefreshTokenService {
      */
     @Transactional
     public boolean revokeRefreshToken(String refreshToken) {
-        Optional<UserSession> sessionOpt = userSessionRepository.findByRefreshTokenAndIsActiveTrue(refreshToken);
+        Optional<UserSessionRecord> sessionOpt = userSessionRepository.findByRefreshTokenAndIsActiveTrue(refreshToken);
 
         if (sessionOpt.isEmpty()) {
             return false;
         }
 
-        UserSession session = sessionOpt.get();
-        session.setIsActive(false);
-        userSessionRepository.save(session);
+        UserSessionRecord session = sessionOpt.get();
+        // Create a new session record with isActive set to false
+        UserSessionRecord deactivatedSession = new UserSessionRecord(
+                session.id(),
+                session.bjyotishUserId(),
+                session.sessionToken(),
+                session.refreshToken(),
+                session.expiresAt(),
+                false, // Set isActive to false
+                session.ipAddress(),
+                session.userAgent(),
+                session.createdAt(),
+                Instant.now()
+        );
+        userSessionRepository.save(deactivatedSession);
 
-        log.info("Revoked refresh token for session: {}", session.getId());
+        log.info("Revoked refresh token for session: {}", session.id());
         return true;
     }
 
@@ -179,11 +225,23 @@ public class RefreshTokenService {
     private void deactivateOldestSession(Long userId) {
         userSessionRepository.findByBjyotishUserIdAndIsActiveTrue(userId)
                 .stream()
-                .min((s1, s2) -> s1.getCreatedAt().compareTo(s2.getCreatedAt()))
+                .min((s1, s2) -> s1.createdAt().compareTo(s2.createdAt()))
                 .ifPresent(oldestSession -> {
-                    oldestSession.setIsActive(false);
-                    userSessionRepository.save(oldestSession);
-                    log.info("Deactivated oldest session: {}", oldestSession.getId());
+                    // Create a new session record with isActive set to false
+                    UserSessionRecord deactivatedSession = new UserSessionRecord(
+                            oldestSession.id(),
+                            oldestSession.bjyotishUserId(),
+                            oldestSession.sessionToken(),
+                            oldestSession.refreshToken(),
+                            oldestSession.expiresAt(),
+                            false, // Set isActive to false
+                            oldestSession.ipAddress(),
+                            oldestSession.userAgent(),
+                            oldestSession.createdAt(),
+                            Instant.now()
+                    );
+                    userSessionRepository.save(deactivatedSession);
+                    log.info("Deactivated oldest session: {}", oldestSession.id());
                 });
     }
 
@@ -225,6 +283,6 @@ public class RefreshTokenService {
         private String accessToken;
         private String refreshToken;
         private Instant expiresAt;
-        private BjyotishUser user;
+        private BjyotishUserRecord userRecord; // Changed to BjyotishUserRecord
     }
 }
