@@ -125,6 +125,13 @@ public class BjyotishAuthenticationService {
                     String cachedOtp = otpService.getOtp(request.getEmail());
                     if (cachedOtp == null || !cachedOtp.equals(request.getOtp())) {
                         throw new UserRegistrationException("Invalid OTP for email: " + request.getEmail());
+                    }else{
+                        BjyotishUser user = userRegistrationMapper.toEntity(registration);
+                        user.setEmailVerified(true);
+                        bjyotishUserRepository.save(user);
+                        registrationCacheService.deleteRegistration(request.getEmail());
+                        otpService.deleteOtp(request.getEmail());
+                        log.info("User email verified successfully: {}", request.getEmail());
                     }
                 }, () -> {
                     throw new UserRegistrationException("No registration found for email: " + request.getEmail());

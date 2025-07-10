@@ -45,7 +45,10 @@ public class RefreshTokenService {
         if (activeSessionCount >= maxActiveSessions) {
             // Deactivate oldest session or all sessions based on business logic
             log.info("User {} has reached max active sessions limit. Deactivating oldest session.", user.getEmail());
-            deactivateOldestSession(user.getId());
+            // Using virtual thread to deactivate oldest session asynchronously
+            Thread.startVirtualThread(() -> {
+                deactivateOldestSession(user.getId());
+            });
         }
 
         String refreshToken = generateRefreshToken();
@@ -151,8 +154,14 @@ public class RefreshTokenService {
      */
     @Transactional
     public void revokeAllRefreshTokensForUser(Long userId) {
-        userSessionRepository.deactivateAllSessionsForUser(userId);
-        log.info("Revoked all refresh tokens for user: {}", userId);
+        Thread.startVirtualThread(() -> {
+            try {
+                userSessionRepository.deactivateAllSessionsForUser(userId);
+                log.info("Revoked all refresh tokens for user: {}", userId);
+            } catch (Exception e) {
+                log.error("Error revoking all tokens for user {}", userId, e);
+            }
+        });
     }
 
     /**
@@ -169,22 +178,33 @@ public class RefreshTokenService {
      */
     @Transactional
     public void cleanupExpiredTokens() {
-        userSessionRepository.deleteExpiredSessions(Instant.now());
-        log.info("Cleaned up expired refresh tokens");
+        Thread.startVirtualThread(() -> {
+            try {
+                userSessionRepository.deleteExpiredSessions(Instant.now());
+                log.info("Cleaned up expired refresh tokens");
+            } catch (Exception e) {
+                log.error("Error cleaning up expired tokens", e);
+            }
+        });
     }
 
     /**
      * Deactivates the oldest session for a user
      */
+    @Transactional
     private void deactivateOldestSession(Long userId) {
-        userSessionRepository.findByBjyotishUserIdAndIsActiveTrue(userId)
-                .stream()
-                .min((s1, s2) -> s1.getCreatedAt().compareTo(s2.getCreatedAt()))
-                .ifPresent(oldestSession -> {
-                    oldestSession.setIsActive(false);
-                    userSessionRepository.save(oldestSession);
-                    log.info("Deactivated oldest session: {}", oldestSession.getId());
-                });
+        try {
+            userSessionRepository.findByBjyotishUserIdAndIsActiveTrue(userId)
+                    .stream()
+                    .min((s1, s2) -> s1.getCreatedAt().compareTo(s2.getCreatedAt()))
+                    .ifPresent(oldestSession -> {
+                        oldestSession.setIsActive(false);
+                        userSessionRepository.save(oldestSession);
+                        log.info("Deactivated oldest session: {}", oldestSession.getId());
+                    });
+        } catch (Exception e) {
+            log.error("Error deactivating oldest session for user {}", userId, e);
+        }
     }
 
     /**
