@@ -18,6 +18,7 @@ import com.anterka.bjyotish.exception.UserAuthenticationException;
 import com.anterka.bjyotish.exception.UserRegistrationException;
 import com.anterka.bjyotish.mapper.UserRegistrationMapper;
 import com.anterka.bjyotish.security.jwt.JwtUtils;
+import com.anterka.bjyotish.service.redis.RegistrationCacheService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

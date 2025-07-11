@@ -14,7 +14,6 @@ public class ApiPaths {
     // ========================================
     public static final String LOGIN = "users/v1/login";
     public static final String REGISTER = "users/v1/register";
-    public static final String USER_PROFILE = "users/v1/profile";
     public static final String VERIFY_EMAIL = "users/v1/verify-email";
     public static final String VERIFY_PHONE = "users/v1/verify-phone";
     public static final String VERIFY_OTP = "users/v1/verify-otp";
@@ -23,15 +22,24 @@ public class ApiPaths {
     public static final String VALIDATE_TOKEN = "users/v1/validate-reset-token";
     public static final String RESET_PASSWORD = "users/v1/reset-password";
     public static final String DELETE_ACCOUNT = "users/v1/account";
+    public static final String LOGOUT = "/users/v1/logout";
+
+    // ==============================================
+    // USER PROFILE ENDPOINTS
+    // ==============================================
+    public static final String USER_PROFILE = "/users/v1/profile";
+    public static final String UPDATE_PROFILE = "/users/v1/profile";
+    public static final String UPLOAD_PROFILE_IMAGE = "/users/v1/profile/image";
+
 
     // User Addresses
-    public static final String USER_ADDRESSES = "users/v1/addresses";
-    public static final String USER_ADDRESS_BY_ID = "users/v1/addresses/{id}";
-    public static final String SET_PRIMARY_ADDRESS = "users/v1/addresses/{id}/primary";
+    public static final String USER_ADDRESSES = "users/v1/profile/addresses";
+    public static final String USER_ADDRESS_BY_ID = "users/v1/profile/addresses/{id}";
+    public static final String SET_PRIMARY_ADDRESS = "users/v1/profile/addresses/{id}/primary";
 
     // Birth Details
-    public static final String BIRTH_DETAILS = "users/v1/birth-details";
-    public static final String BIRTH_DETAILS_BY_ID = "users/v1/birth-details/{id}";
+    public static final String BIRTH_DETAILS = "users/v1/profile/birth-details";
+    public static final String BIRTH_DETAILS_BY_ID = "users/v1/profile/birth-details/{id}";
 
     // ========================================
     // ASTROLOGER MANAGEMENT PATHS

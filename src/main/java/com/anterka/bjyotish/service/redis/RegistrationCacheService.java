@@ -1,4 +1,4 @@
-package com.anterka.bjyotish.service;
+package com.anterka.bjyotish.service.redis;
 
 import com.anterka.bjyotish.dto.users.request.UserRegistrationRequest;
 import com.google.gson.Gson;
