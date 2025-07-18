@@ -7,6 +7,7 @@ import com.anterka.bjyotish.dto.users.request.UserRegistrationRequest;
 import com.anterka.bjyotish.dto.users.response.UserAddressResponse;
 import com.anterka.bjyotish.dto.users.response.UserRegistrationResponse;
 import com.anterka.bjyotish.service.BjyotishAuthenticationService;
+import com.anterka.bjyotish.service.UserAddressService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,12 +25,13 @@ import java.util.logging.Logger;
 public class UserAddressController {
 
     private static final Logger log = Logger.getLogger(UserAddressController.class.getName());
+    private final UserAddressService userAddressService;
 
-//    @PostMapping(ApiPaths.USER_ADDRESSES)
-//    public ResponseEntity<UserAddressResponse> createAddress(@Valid @RequestBody UserAddressRequest request, Authentication authentication) {
-//        log.info("Received request to create user address");
-//        return ResponseEntity.status(HttpStatus.CREATED).body(userAddressService.createAddress(request,authentication.getPrincipal().toString()));
-//    }
+    @PostMapping(ApiPaths.USER_ADDRESSES)
+    public ResponseEntity<UserAddressResponse> createAddress(@Valid @RequestBody UserAddressRequest request, Authentication authentication) {
+        log.info("Received request to create user address");
+        return ResponseEntity.status(HttpStatus.CREATED).body(new UserAddressResponse());
+    }
 //
 //    @GetMapping(ApiPaths.USER_ADDRESSES)
 //    public ResponseEntity<List<UserAddressResponse>> getAllAddresses() {
