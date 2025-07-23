@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(ApiPaths.API_PREFIX)
+@RequestMapping(ApiPaths.API_V1_BASE)
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UserController {
     private static final Logger log = Logger.getLogger(UserController.class.getName());
@@ -35,7 +35,7 @@ public class UserController {
     private final RateLimiterService rateLimiter;
     private final UserPasswordResetService passwordResetService;
 
-    @PostMapping(ApiPaths.REGISTER)
+    @PostMapping(ApiPaths.CUSTOMER_REGISTER)
     public ResponseEntity<UserRegistrationResponse> register(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest) {
         log.info("Received registration request for email: " + userRegistrationRequest.getEmail());
         return ResponseEntity.ok(bjyotishAuthenticationService.registerUser(userRegistrationRequest));
@@ -74,7 +74,7 @@ public class UserController {
         }
     }
 
-    @PostMapping(ApiPaths.VALIDATE_TOKEN)
+    @PostMapping(ApiPaths.VALIDATE_RESET_TOKEN)
     public ResponseEntity<UserTokenValidationResponse> validateToken(@RequestBody String token, HttpServletRequest servletRequest) {
         // Rate limiting for token validation
         String clientIp = getClientIp(servletRequest);
