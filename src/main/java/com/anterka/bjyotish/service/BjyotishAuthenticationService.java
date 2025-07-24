@@ -127,7 +127,7 @@ public class BjyotishAuthenticationService {
                     if (cachedOtp == null || !cachedOtp.equals(request.getOtp())) {
                         throw new UserRegistrationException("Invalid OTP for email: " + request.getEmail());
                     }else{
-                        BjyotishUser user = userRegistrationMapper.toEntity(registration);
+                        BjyotishUser user = userRegistrationMapper.toEntityCustomer(registration);
                         user.setEmailVerified(true);
                         bjyotishUserRepository.save(user);
                         registrationCacheService.deleteRegistration(request.getEmail());

@@ -17,7 +17,7 @@ public class UserRegistrationMapper {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public BjyotishUser toEntity(UserRegistrationRequest request) {
+    public BjyotishUser toEntityCustomer(UserRegistrationRequest request) {
         return BjyotishUser.builder()
                 .email(request.getEmail())
                 .phone(request.getPhone())
@@ -25,6 +25,20 @@ public class UserRegistrationMapper {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .role(UserRoleEnum.CLIENT)
+                .status(UserStatusEnum.PENDING_VERIFICATION)
+                .emailVerified(true)
+                .phoneVerified(false)
+                .build();
+    }
+
+    public BjyotishUser toEntityAstrologer(UserRegistrationRequest request) {
+        return BjyotishUser.builder()
+                .email(request.getEmail())
+                .phone(request.getPhone())
+                .passwordHash(passwordEncoder.encode(request.getPassword()))
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .role(UserRoleEnum.ASTROLOGER)
                 .status(UserStatusEnum.PENDING_VERIFICATION)
                 .emailVerified(true)
                 .phoneVerified(false)
