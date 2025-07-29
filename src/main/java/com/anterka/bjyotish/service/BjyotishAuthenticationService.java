@@ -1,12 +1,10 @@
 package com.anterka.bjyotish.service;
 
+import com.anterka.bjyotish.constants.enums.UserRoleEnum;
 import com.anterka.bjyotish.dao.BjyotishUserRepository;
 import com.anterka.bjyotish.dto.CustomApiResponse;
 import com.anterka.bjyotish.dto.ResponseStatusEnum;
-import com.anterka.bjyotish.dto.users.request.UserEmailVerificationRequest;
-import com.anterka.bjyotish.dto.users.request.UserLoginRequest;
-import com.anterka.bjyotish.dto.users.request.UserRegistrationRequest;
-import com.anterka.bjyotish.dto.users.request.UserResendOtpRequest;
+import com.anterka.bjyotish.dto.users.request.*;
 import com.anterka.bjyotish.dto.users.response.ResendOtpResponse;
 import com.anterka.bjyotish.dto.users.response.UserLoginResponse;
 import com.anterka.bjyotish.dto.users.response.UserRegistrationResponse;
@@ -18,7 +16,10 @@ import com.anterka.bjyotish.exception.UserAuthenticationException;
 import com.anterka.bjyotish.exception.UserRegistrationException;
 import com.anterka.bjyotish.mapper.UserRegistrationMapper;
 import com.anterka.bjyotish.security.jwt.JwtUtils;
+import com.anterka.bjyotish.service.helper.RegistrationData;
 import com.anterka.bjyotish.service.redis.RegistrationCacheService;
+import com.anterka.bjyotish.service.strategy.UserRegistrationStrategy;
+import com.anterka.bjyotish.service.strategy.UserRegistrationStrategyFactory;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -49,29 +50,54 @@ public class BjyotishAuthenticationService {
     private final JwtUtils jwtUtils;
     private final RefreshTokenService refreshTokenService;
 
-    public UserRegistrationResponse registerUser(UserRegistrationRequest request) {
+    private final UserRegistrationStrategyFactory registrationStrategyFactory;
+
+    /**
+     * Updated registerUser method that uses strategy pattern
+     * This method can now handle both Client and Astrologer registration
+     */
+    public UserRegistrationResponse registerUser(UserRegistrationRequest request, UserRoleEnum userRole) {
         validateUserData(request);
+
+        // Generate OTP for email verification
         String otp = otpService.generateOtp();
         long otpValiditySeconds = otpService.saveOtp(request.getEmail(), otp);
+
         try {
             // Async email sending
             emailService.sendOTPMail(request.getEmail(), otp)
                     .exceptionally(throwable -> {
-                        // Log the error but don't block the registration
                         log.error("Failed to send OTP email: {}", throwable.getMessage());
                         return null;
                     });
         } catch (MessagingException e) {
-            throw new UserRegistrationException("Failed to send OTP email"+ e.getMessage());
+            throw new UserRegistrationException("Failed to send OTP email: " + e.getMessage());
         }
-        registrationCacheService.saveRegistration(request.getEmail(),request);
+
+        // Cache the registration data along with strategy info
+        RegistrationData registrationData = RegistrationData.builder()
+                .userRegistrationRequest(request)
+                .userRole(userRole)
+                .build();
+
+        registrationCacheService.saveRegistration(request.getEmail(), registrationData);
+
         return UserRegistrationResponse.success(
-                null, // userId will be set after saving the user
+                null, // userId will be set after email verification
                 request.getEmail(),
                 request.getFirstName(),
                 request.getLastName(),
                 otpValiditySeconds
         );
+    }
+
+    // Convenience methods for different user types
+    public UserRegistrationResponse registerClient(ClientRegistrationRequest request) {
+        return registerUser(request, UserRoleEnum.CLIENT);
+    }
+
+    public UserRegistrationResponse registerAstrologer(AstrologerRegistrationRequest request) {
+        return registerUser(request, UserRoleEnum.ASTROLOGER);
     }
 
     @Transactional
@@ -121,46 +147,61 @@ public class BjyotishAuthenticationService {
     @Transactional
     public CustomApiResponse verifyUserEmail(UserEmailVerificationRequest request) {
         log.info("Verifying user email: {}", request.getEmail());
+
         registrationCacheService.getRegistration(request.getEmail())
-                .ifPresentOrElse(registration -> {
+                .ifPresentOrElse(registrationData -> {
                     String cachedOtp = otpService.getOtp(request.getEmail());
                     if (cachedOtp == null || !cachedOtp.equals(request.getOtp())) {
                         throw new UserRegistrationException("Invalid OTP for email: " + request.getEmail());
-                    }else{
-                        BjyotishUser user = userRegistrationMapper.toEntityCustomer(registration);
+                    } else {
+                        // Get the appropriate strategy
+                        UserRegistrationStrategy strategy = registrationStrategyFactory
+                                .getStrategy(registrationData.getUserRole());
+
+                        // Create user using strategy
+                        BjyotishUser user = strategy.createUser(registrationData.getUserRegistrationRequest());
                         user.setEmailVerified(true);
-                        bjyotishUserRepository.save(user);
+
+                        // Save user to database
+                        user = bjyotishUserRepository.save(user);
+
+                        // Perform post-registration setup (create profiles, etc.)
+                        strategy.performPostRegistrationSetup(user, registrationData.getUserRegistrationRequest());
+
+                        // Clean up cache
                         registrationCacheService.deleteRegistration(request.getEmail());
                         otpService.deleteOtp(request.getEmail());
+
                         log.info("User email verified successfully: {}", request.getEmail());
                     }
                 }, () -> {
                     throw new UserRegistrationException("No registration found for email: " + request.getEmail());
                 });
+
         return CustomApiResponse.builder()
                 .status(ResponseStatusEnum.SUCCESS)
                 .message("User registered successfully")
-                .timestamp(LocalDateTime.now()).build();
+                .timestamp(LocalDateTime.now())
+                .build();
     }
 
     @Transactional
     public ResendOtpResponse resendOtp(UserResendOtpRequest request) {
-
-        if(registrationCacheService.registrationExists(request.getEmail())){
+        if (registrationCacheService.registrationExists(request.getEmail())) {
             String otp = otpService.generateOtp();
             otpService.saveOtp(request.getEmail(), otp);
+
             try {
                 // Async email sending
                 emailService.sendOTPMail(request.getEmail(), otp)
                         .exceptionally(throwable -> {
-                            // Log the error but don't block the resend
                             log.error("Failed to send OTP email: {}", throwable.getMessage());
                             return null;
                         });
             } catch (MessagingException e) {
-                throw new UserRegistrationException("Failed to send OTP email"+ e.getMessage());
+                throw new UserRegistrationException("Failed to send OTP email: " + e.getMessage());
             }
-        }else {
+        } else {
             throw new UserRegistrationException("No registration found for email: " + request.getEmail());
         }
 
@@ -173,8 +214,7 @@ public class BjyotishAuthenticationService {
     }
 
     /**
-     * Accepts {@link UserRegistrationRequest}
-     * - validates the email, name, contact number
+     * Validates user data for both clients and astrologers
      */
     private void validateUserData(UserRegistrationRequest request) {
         bjyotishUserRepository.findByEmailOrPhone(request.getEmail(), request.getPhone())
@@ -186,5 +226,4 @@ public class BjyotishAuthenticationService {
                     }
                 });
     }
-
 }

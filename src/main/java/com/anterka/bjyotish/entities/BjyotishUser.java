@@ -16,7 +16,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -53,9 +52,6 @@ public class BjyotishUser implements UserDetails, Serializable {
 
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
-
-    @Column(name = "date_of_birth")
-    private LocalDate dateOfBirth;
 
     @Column(name = "gender", length = 10)
     private String gender;

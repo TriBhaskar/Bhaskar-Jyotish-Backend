@@ -1,16 +1,11 @@
 package com.anterka.bjyotish.dto.users.request;
 
+import com.anterka.bjyotish.constants.enums.UserRoleEnum;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserRegistrationRequest {
+public abstract class UserRegistrationRequest {
     @NotBlank(message = "Email is required")
     @Email(message = "Please provide a valid email address")
     @Size(max = 255)
@@ -35,7 +30,13 @@ public class UserRegistrationRequest {
     @Pattern(regexp = "^[a-zA-Z\\s]+$")
     private String lastName;
 
+    @NotBlank(message = "Gender is required")
+    @Pattern(regexp = "^(male|female|other)$", flags = Pattern.Flag.CASE_INSENSITIVE, message = "Gender must be 'male', 'female', or 'other'")
+    private String gender;
+
     // Accept terms and conditions
     @AssertTrue(message = "You must accept the terms and conditions")
     private boolean acceptTerms;
+
+    public abstract UserRoleEnum getUserRole();
 }

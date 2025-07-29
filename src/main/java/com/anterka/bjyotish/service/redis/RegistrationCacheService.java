@@ -1,6 +1,6 @@
 package com.anterka.bjyotish.service.redis;
 
-import com.anterka.bjyotish.dto.users.request.UserRegistrationRequest;
+import com.anterka.bjyotish.service.helper.RegistrationData;
 import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,13 +19,13 @@ public class RegistrationCacheService {
     private static final String REGISTRATION_PREFIX = "registration_";
     private static final long REGISTRATION_VALIDITY_SECONDS = TimeUnit.HOURS.toSeconds(2);
 
-    public void saveRegistration(String email, UserRegistrationRequest registrationRequest) {
+    public void saveRegistration(String email, RegistrationData registrationRequest) {
         String key = REGISTRATION_PREFIX + email;
         client.jsonSet(key, gson.toJson(registrationRequest));
         client.expire(key, REGISTRATION_VALIDITY_SECONDS);
     }
 
-    public Optional<UserRegistrationRequest> getRegistration(String email) {
+    public Optional<RegistrationData> getRegistration(String email) {
         String key = REGISTRATION_PREFIX + email;
         Object jsonResult = client.jsonGet(key);
         if (jsonResult == null) {
@@ -33,7 +33,7 @@ public class RegistrationCacheService {
         }
         // Convert the JSON object to string first
         String jsonStr = gson.toJson(jsonResult);
-        UserRegistrationRequest request = gson.fromJson(jsonStr, UserRegistrationRequest.class);
+        RegistrationData request = gson.fromJson(jsonStr, RegistrationData.class);
         return Optional.ofNullable(request);
     }
 

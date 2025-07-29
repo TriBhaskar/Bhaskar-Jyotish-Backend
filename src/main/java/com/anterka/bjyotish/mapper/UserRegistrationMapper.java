@@ -38,7 +38,7 @@ public class UserRegistrationMapper {
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .role(UserRoleEnum.ASTROLOGER)
+                .role(request.getUserRole())
                 .status(UserStatusEnum.PENDING_VERIFICATION)
                 .emailVerified(true)
                 .phoneVerified(false)

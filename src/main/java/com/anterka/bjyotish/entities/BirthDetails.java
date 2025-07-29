@@ -40,8 +40,17 @@ public class BirthDetails implements Serializable {
     @Column(name = "birth_time", nullable = false)
     private LocalTime birthTime;
 
-    @Column(name = "birth_place", nullable = false, length = 255)
-    private String birthPlace;
+    @Column(name = "city", nullable = false, length = 100)
+    private String city;
+
+    @Column(name = "state", nullable = false, length = 100)
+    private String state;
+
+    @Column(name = "country", nullable = false, length = 100)
+    private String country;
+
+    @Column(name = "postal_code", length = 20)
+    private String postalCode;
 
     @Column(name = "birth_latitude", nullable = false, precision = 10, scale = 8)
     private BigDecimal birthLatitude;

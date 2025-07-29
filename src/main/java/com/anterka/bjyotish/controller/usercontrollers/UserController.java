@@ -36,9 +36,9 @@ public class UserController {
     private final UserPasswordResetService passwordResetService;
 
     @PostMapping(ApiPaths.CUSTOMER_REGISTER)
-    public ResponseEntity<UserRegistrationResponse> register(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest) {
-        log.info("Received registration request for email: " + userRegistrationRequest.getEmail());
-        return ResponseEntity.ok(bjyotishAuthenticationService.registerUser(userRegistrationRequest));
+    public ResponseEntity<UserRegistrationResponse> registerClient(@Valid @RequestBody ClientRegistrationRequest  clientRegistrationRequest) {
+        log.info("Received registration request for email: " + clientRegistrationRequest.getEmail());
+        return ResponseEntity.ok(bjyotishAuthenticationService.registerClient(clientRegistrationRequest));
     }
 
     @PostMapping(ApiPaths.LOGIN)
