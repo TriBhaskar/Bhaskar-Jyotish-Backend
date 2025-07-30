@@ -14,7 +14,6 @@ import com.anterka.bjyotish.exception.CredentialValidationException;
 import com.anterka.bjyotish.exception.DataAlreadyExistsException;
 import com.anterka.bjyotish.exception.UserAuthenticationException;
 import com.anterka.bjyotish.exception.UserRegistrationException;
-import com.anterka.bjyotish.mapper.UserRegistrationMapper;
 import com.anterka.bjyotish.security.jwt.JwtUtils;
 import com.anterka.bjyotish.service.helper.RegistrationData;
 import com.anterka.bjyotish.service.redis.RegistrationCacheService;
@@ -45,7 +44,6 @@ public class BjyotishAuthenticationService {
     private final OtpService otpService;
     private final EmailService emailService;
     private final RegistrationCacheService registrationCacheService;
-    private final UserRegistrationMapper userRegistrationMapper;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final RefreshTokenService refreshTokenService;
