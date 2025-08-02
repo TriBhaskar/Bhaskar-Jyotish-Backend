@@ -35,12 +35,6 @@ public class UserController {
     private final RateLimiterService rateLimiter;
     private final UserPasswordResetService passwordResetService;
 
-    @PostMapping(ApiPaths.CUSTOMER_REGISTER)
-    public ResponseEntity<UserRegistrationResponse> registerClient(@Valid @RequestBody ClientRegistrationRequest  clientRegistrationRequest) {
-        log.info("Received registration request for email: " + clientRegistrationRequest.getEmail());
-        return ResponseEntity.ok(bjyotishAuthenticationService.registerClient(clientRegistrationRequest));
-    }
-
     @PostMapping(ApiPaths.LOGIN)
     public ResponseEntity<UserLoginResponse> login(@Valid @RequestBody UserLoginRequest userLoginRequest, HttpServletRequest httpRequest) {
         log.info("Received login request for email: " + userLoginRequest.getEmail());

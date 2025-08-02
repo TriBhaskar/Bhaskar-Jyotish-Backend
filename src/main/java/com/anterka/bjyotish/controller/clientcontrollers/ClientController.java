@@ -1,7 +1,7 @@
-package com.anterka.bjyotish.controller.astrologercontrollers;
+package com.anterka.bjyotish.controller.clientcontrollers;
 
 import com.anterka.bjyotish.controller.constants.ApiPaths;
-import com.anterka.bjyotish.dto.users.request.AstrologerRegistrationRequest;
+import com.anterka.bjyotish.dto.users.request.ClientRegistrationRequest;
 import com.anterka.bjyotish.dto.users.response.UserRegistrationResponse;
 import com.anterka.bjyotish.service.BjyotishAuthenticationService;
 import jakarta.validation.Valid;
@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(ApiPaths.API_V1_BASE)
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Slf4j
-public class AstrologerController {
+public class ClientController {
 
     private final BjyotishAuthenticationService bjyotishAuthenticationService;
 
-    @PostMapping(ApiPaths.ASTROLOGER_REGISTER)
-    public ResponseEntity<UserRegistrationResponse> register(@Valid @RequestBody AstrologerRegistrationRequest astrologerRegistrationRequest) {
-        log.info("Received registration request for email:{}", astrologerRegistrationRequest.getEmail());
-        return ResponseEntity.ok(bjyotishAuthenticationService.registerAstrologer(astrologerRegistrationRequest));
+    @PostMapping(ApiPaths.CUSTOMER_REGISTER)
+    public ResponseEntity<UserRegistrationResponse> registerClient(@Valid @RequestBody ClientRegistrationRequest clientRegistrationRequest) {
+        log.info("Received registration request for email: " + clientRegistrationRequest.getEmail());
+        return ResponseEntity.ok(bjyotishAuthenticationService.registerClient(clientRegistrationRequest));
     }
 }

@@ -218,7 +218,6 @@ CREATE TABLE bjyotish_users (
     password_hash VARCHAR(255) NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
-    date_of_birth DATE,
     gender VARCHAR(10),
     role user_role NOT NULL DEFAULT 'CLIENT',
     status user_status NOT NULL DEFAULT 'PENDING_VERIFICATION',
@@ -252,7 +251,10 @@ CREATE TABLE birth_details (
     bjyotish_user_id BIGINT NOT NULL REFERENCES bjyotish_users(id) ON DELETE CASCADE,
     birth_date DATE NOT NULL,
     birth_time TIME NOT NULL,
-    birth_place VARCHAR(255) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    state VARCHAR(100) NOT NULL,
+    country VARCHAR(100) NOT NULL,
+    postal_code VARCHAR(20),
     birth_latitude DECIMAL(10, 8) NOT NULL,
     birth_longitude DECIMAL(11, 8) NOT NULL,
     timezone VARCHAR(50) NOT NULL,
@@ -279,7 +281,7 @@ CREATE TABLE astrologer_profiles (
     bio TEXT,
     years_of_experience INTEGER DEFAULT 0,
     languages_spoken TEXT[], -- Array of languages
-    specializations specialization_type[],
+    specializations TEXT[],
     certifications TEXT[],
     consultation_fee_per_hour DECIMAL(10, 2) NOT NULL,
     minimum_consultation_duration INTEGER DEFAULT 30, -- in minutes

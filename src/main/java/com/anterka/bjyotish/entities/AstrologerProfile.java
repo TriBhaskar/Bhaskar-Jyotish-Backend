@@ -49,9 +49,9 @@ public class AstrologerProfile implements Serializable {
     @Column(name = "languages_spoken", columnDefinition = "text[]")
     private String[] languagesSpoken;
 
-    @Column(name = "specializations", columnDefinition = "specialization_type[]")
-    @Enumerated(EnumType.STRING)
-    private SpecializationTypeEnum[] specializations;
+    @Column(name = "specializations", columnDefinition = "text[]")
+//    @Enumerated(EnumType.STRING)
+    private String[] specializations;
 
     @Column(name = "certifications", columnDefinition = "text[]")
     private String[] certifications;

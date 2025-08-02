@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 // Astrologer registration strategy
 @Component
@@ -50,8 +51,7 @@ public class AstrologerRegistrationStrategy implements UserRegistrationStrategy 
                 .yearsOfExperience(astrologerRequest.getYearsOfExperience())
                 .languagesSpoken(astrologerRequest.getLanguagesSpoken() != null ?
                         astrologerRequest.getLanguagesSpoken().toArray(new String[0]) : new String[0])
-                .specializations(astrologerRequest.getSpecializations() != null ?
-                        astrologerRequest.getSpecializations().toArray(new SpecializationTypeEnum[0]) : new SpecializationTypeEnum[0])
+                .specializations(convertSpecializations(astrologerRequest.getSpecializations()))
                 .consultationFeePerHour(BigDecimal.valueOf(astrologerRequest.getConsultationFeePerHour()))
                 .minimumConsultationDuration(astrologerRequest.getMinimumConsultationDuration())
                 .isAvailableForConsultation(false) // Initially not available until profile is approved
@@ -62,6 +62,17 @@ public class AstrologerRegistrationStrategy implements UserRegistrationStrategy 
 
         // Additional astrologer-specific setup can go here
         // For example: send admin notification for verification, create default availability slots, etc.
+    }
+
+    private String[] convertSpecializations(List<SpecializationTypeEnum> specializations) {
+        String [] specializationsArray = new String[SpecializationTypeEnum.values().length];
+        if (specializations == null || specializations.isEmpty()) {
+            specializationsArray[0] = SpecializationTypeEnum.CAREER.name(); // Default specialization
+            return specializationsArray;
+        }
+        return specializations.stream()
+                .map(SpecializationTypeEnum::name)
+                .toArray(String[]::new);
     }
 
     private void createAstrologerProfile(BjyotishUser user, AstrologerRegistrationRequest request) {
