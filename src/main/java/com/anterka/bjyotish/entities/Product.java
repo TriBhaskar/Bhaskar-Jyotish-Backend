@@ -48,8 +48,8 @@ public class Product implements Serializable {
     @Column(name = "discount_price", precision = 10, scale = 2)
     private java.math.BigDecimal discountPrice;
 
-    @Column(name = "images", columnDefinition = "TEXT[]")
-    private String[] images;
+//    @Column(name = "images", columnDefinition = "TEXT[]")
+//    private String[] images;
 
     @Column(name = "is_digital")
     @Builder.Default
@@ -130,13 +130,13 @@ public class Product implements Serializable {
                 .multiply(java.math.BigDecimal.valueOf(100)).doubleValue();
     }
 
-    public boolean hasImages() {
-        return images != null && images.length > 0;
-    }
+//    public boolean hasImages() {
+//        return images != null && images.length > 0;
+//    }
 
-    public String getPrimaryImage() {
-        return hasImages() ? images[0] : null;
-    }
+//    public String getPrimaryImage() {
+//        return hasImages() ? images[0] : null;
+//    }
 
     public String getCategoryName() {
         return category != null ? category.getName() : "Uncategorized";

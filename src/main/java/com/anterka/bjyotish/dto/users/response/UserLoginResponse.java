@@ -27,7 +27,7 @@ public class UserLoginResponse {
     private UserStatusEnum status;
     private boolean emailVerified;
     private boolean phoneVerified;
-    private String profileImageUrl;
+//    private String profileImageUrl;
 
     // Static factory methods
     public static UserLoginResponse success(BjyotishUser user, String accessToken,
@@ -44,7 +44,6 @@ public class UserLoginResponse {
                 .status(user.getStatus())
                 .emailVerified(user.getEmailVerified())
                 .phoneVerified(user.getPhoneVerified())
-                .profileImageUrl(user.getProfileImageUrl())
                 .build();
     }
 }

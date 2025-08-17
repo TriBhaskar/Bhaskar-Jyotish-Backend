@@ -1,0 +1,18 @@
+package com.anterka.bjyotish.constants.enums;
+
+public enum FileTypeEnum {
+    PROFILE_IMAGE,
+    CERTIFICATION,
+    CONSULTATION_NOTES,
+    BIRTH_CHART_IMAGE,
+    BLOG_FEATURED_IMAGE,
+    BLOG_CONTENT_IMAGE,
+    PRODUCT_IMAGE,
+    FORUM_ATTACHMENT,
+    REPORT_PDF,
+    DOCUMENT,
+    AUDIO_RECORDING,
+    VIDEO_RECORDING,
+    YANTRA_IMAGE,
+    GEMSTONE_CERTIFICATE
+}

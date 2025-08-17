@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 // Astrologer registration strategy
@@ -47,13 +46,13 @@ public class AstrologerRegistrationStrategy implements UserRegistrationStrategy 
         AstrologerProfile profile = AstrologerProfile.builder()
                 .bjyotishUser(user)
                 .displayName(astrologerRequest.getDisplayName())
-                .bio(astrologerRequest.getBio())
-                .yearsOfExperience(astrologerRequest.getYearsOfExperience())
-                .languagesSpoken(astrologerRequest.getLanguagesSpoken() != null ?
-                        astrologerRequest.getLanguagesSpoken().toArray(new String[0]) : new String[0])
-                .specializations(convertSpecializations(astrologerRequest.getSpecializations()))
-                .consultationFeePerHour(BigDecimal.valueOf(astrologerRequest.getConsultationFeePerHour()))
-                .minimumConsultationDuration(astrologerRequest.getMinimumConsultationDuration())
+//                .bio(astrologerRequest.getBio())
+//                .yearsOfExperience(astrologerRequest.getYearsOfExperience())
+//                .languagesSpoken(astrologerRequest.getLanguagesSpoken() != null ?
+//                        astrologerRequest.getLanguagesSpoken().toArray(new String[0]) : new String[0])
+//                .specializations(convertSpecializations(astrologerRequest.getSpecializations()))
+//                .consultationFeePerHour(BigDecimal.valueOf(astrologerRequest.getConsultationFeePerHour()))
+//                .minimumConsultationDuration(astrologerRequest.getMinimumConsultationDuration())
                 .isAvailableForConsultation(false) // Initially not available until profile is approved
                 .verifiedAstrologer(false) // Requires admin verification
                 .build();
@@ -79,9 +78,9 @@ public class AstrologerRegistrationStrategy implements UserRegistrationStrategy 
         AstrologerProfile profile = new AstrologerProfile();
         profile.setId(user.getId());
         profile.setDisplayName(request.getDisplayName());
-        profile.setBio(request.getBio());
-        profile.setYearsOfExperience(request.getYearsOfExperience());
-        profile.setConsultationFeePerHour(request.getConsultationFee());
+//        profile.setBio(request.getBio());
+//        profile.setYearsOfExperience(request.getYearsOfExperience());
+//        profile.setConsultationFeePerHour(request.getConsultationFee());
         // Set other astrologer-specific fields
         astrologerProfileRepository.save(profile);
     }

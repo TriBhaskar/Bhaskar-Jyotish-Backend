@@ -75,8 +75,8 @@ public class Consultation implements Serializable {
     @Column(name = "meeting_id", length = 100)
     private String meetingId;
 
-    @Column(name = "recording_url", length = 500)
-    private String recordingUrl;
+//    @Column(name = "recording_url", length = 500)
+//    private String recordingUrl;
 
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;

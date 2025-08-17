@@ -52,8 +52,8 @@ public class BirthChart implements Serializable {
     @Column(name = "nakshatra", length = 50)
     private String nakshatra; // Birth star
 
-    @Column(name = "chart_image_url")
-    private String chartImageUrl;
+//    @Column(name = "chart_image_url")
+//    private String chartImageUrl;
 
     @Column(name = "created_at")
     @Builder.Default
@@ -90,9 +90,9 @@ public class BirthChart implements Serializable {
         return nakshatra != null && !nakshatra.trim().isEmpty();
     }
 
-    public boolean hasChartImage() {
-        return chartImageUrl != null && !chartImageUrl.trim().isEmpty();
-    }
+//    public boolean hasChartImage() {
+//        return chartImageUrl != null && !chartImageUrl.trim().isEmpty();
+//    }
 
     public String getChartSummary() {
         StringBuilder summary = new StringBuilder();

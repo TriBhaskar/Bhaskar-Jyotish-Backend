@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 public class BjyotishUserService implements UserDetailsService {
 
     private final BjyotishUserRepository userRepository;
+
     /**
      * @param username
      * @return

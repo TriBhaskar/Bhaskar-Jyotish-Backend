@@ -68,8 +68,8 @@ public class BjyotishUser implements UserDetails, Serializable {
     @Builder.Default
     private UserStatusEnum status = UserStatusEnum.PENDING_VERIFICATION;
 
-    @Column(name = "profile_image_url")
-    private String profileImageUrl;
+//    @Column(name = "profile_image_url")
+//    private String profileImageUrl;
 
     @Column(name = "email_verified")
     @Builder.Default

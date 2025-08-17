@@ -50,8 +50,8 @@ public class BlogPost implements Serializable {
     @Column(name = "excerpt", columnDefinition = "TEXT")
     private String excerpt;
 
-    @Column(name = "featured_image_url")
-    private String featuredImageUrl;
+//    @Column(name = "featured_image_url")
+//    private String featuredImageUrl;
 
     @Column(name = "tags", columnDefinition = "text[]")
     @JdbcTypeCode(SqlTypes.ARRAY)
@@ -110,9 +110,9 @@ public class BlogPost implements Serializable {
         this.viewsCount = (this.viewsCount != null ? this.viewsCount : 0) + 1;
     }
 
-    public boolean hasFeaturedImage() {
-        return featuredImageUrl != null && !featuredImageUrl.trim().isEmpty();
-    }
+//    public boolean hasFeaturedImage() {
+//        return featuredImageUrl != null && !featuredImageUrl.trim().isEmpty();
+//    }
 
     public boolean hasExcerpt() {
         return excerpt != null && !excerpt.trim().isEmpty();
